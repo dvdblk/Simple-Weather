@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8909B7A11C68DCFD00369E30 /* WeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8909B7A01C68DCFD00369E30 /* WeatherData.swift */; };
 		8927AC3D1C666CF800A6931F /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8927AC3C1C666CF800A6931F /* TodayViewController.swift */; };
 		8927AC3F1C666D0300A6931F /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8927AC3E1C666D0300A6931F /* InfoViewController.swift */; };
 		89A70EA01C6803E4008704B3 /* Forecast5Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A70E9F1C6803E4008704B3 /* Forecast5Cell.swift */; };
@@ -18,9 +19,11 @@
 		89A8AE251C64F5770092CFCD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 89A8AE231C64F5770092CFCD /* LaunchScreen.storyboard */; };
 		89BB28541C67B0F40008C5C1 /* CurrentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BB28531C67B0F40008C5C1 /* CurrentCell.swift */; };
 		89BB28561C67B5F60008C5C1 /* CurrentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BB28551C67B5F60008C5C1 /* CurrentViewController.swift */; };
+		89D11AD81C6B430300AEDD9E /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D11AD71C6B430200AEDD9E /* Downloader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8909B7A01C68DCFD00369E30 /* WeatherData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherData.swift; sourceTree = "<group>"; };
 		8927AC3C1C666CF800A6931F /* TodayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayViewController.swift; sourceTree = "<group>"; };
 		8927AC3E1C666D0300A6931F /* InfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
 		89A70E9F1C6803E4008704B3 /* Forecast5Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Forecast5Cell.swift; sourceTree = "<group>"; };
@@ -34,6 +37,7 @@
 		89A8AE261C64F5780092CFCD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		89BB28531C67B0F40008C5C1 /* CurrentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentCell.swift; sourceTree = "<group>"; };
 		89BB28551C67B5F60008C5C1 /* CurrentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentViewController.swift; sourceTree = "<group>"; };
+		89D11AD71C6B430200AEDD9E /* Downloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,8 @@
 		89BB284D1C67A33A0008C5C1 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				8909B7A01C68DCFD00369E30 /* WeatherData.swift */,
+				89D11AD71C6B430200AEDD9E /* Downloader.swift */,
 				89A8AE1C1C64F5770092CFCD /* FullViewController.swift */,
 				89BB284E1C67A3520008C5C1 /* Content */,
 			);
@@ -185,6 +191,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				89D11AD81C6B430300AEDD9E /* Downloader.swift in Sources */,
 				89A70EA01C6803E4008704B3 /* Forecast5Cell.swift in Sources */,
 				89A8AE1D1C64F5770092CFCD /* FullViewController.swift in Sources */,
 				89A8AE1B1C64F5770092CFCD /* AppDelegate.swift in Sources */,
@@ -192,6 +199,7 @@
 				8927AC3F1C666D0300A6931F /* InfoViewController.swift in Sources */,
 				8927AC3D1C666CF800A6931F /* TodayViewController.swift in Sources */,
 				89BB28561C67B5F60008C5C1 /* CurrentViewController.swift in Sources */,
+				8909B7A11C68DCFD00369E30 /* WeatherData.swift in Sources */,
 				89BB28541C67B0F40008C5C1 /* CurrentCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

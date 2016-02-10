@@ -10,11 +10,12 @@ import UIKit
 
 class Forecast5Cell: UITableViewCell {
 
-    @IBOutlet weak var testLabel: UILabel!
+    @IBOutlet weak var dayLabel: UILabel!
+    @IBOutlet weak var temperatureLabel: UILabel!
+    @IBOutlet weak var iconImageView: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-        testLabel.text = "123"
+        dayLabel.text = "Monday"
     }
 
     override func setSelected(selected: Bool, animated: Bool) {

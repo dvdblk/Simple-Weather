@@ -34,6 +34,8 @@ class InfoViewController: UIViewController {
         let scrollH = scrollView.frame.size.height
         scrollView!.contentSize = CGSizeMake(scrollW, scrollH)
         
+        scrollView.delegate = self
+        
         // Do any additional setup after loading the view.
     }
 
@@ -41,16 +43,12 @@ class InfoViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
+
+extension InfoViewController: UIScrollViewDelegate {
+    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+        pageControl.currentPage = Int(scrollView.contentOffset.x / scrollView.frame.size.width)
+    }
+}
+
