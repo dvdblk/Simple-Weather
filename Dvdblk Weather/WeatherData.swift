@@ -49,26 +49,34 @@ struct Status {
 }
 
 class OneDayWeather {
-    public private(set) var id: Int
-    public private(set) var temperature: Temperature
-    public private(set) var icon: String?
-    public private(set) var date: UnixTime
+    var id: Int?
+    var temperature: Temperature?
+    var icon: String?
+    var date: UnixTime?
     
     init() {
         self.id = 800
-        self.temperature = 68
+        self.temperature = -460
+        self.icon = "01d.png"
         self.date = 0
+    }
+    
+    init(id: Int, temp: Temperature, icon: String, date: UnixTime) {
+        self.id = id
+        self.temperature = temp
+        self.date = date
+        self.icon = icon
     }
 }
 
 class OneDayWeatherExtended: OneDayWeather {
-    public private(set) var description: String
-    public private(set) var cloudiness: Int
-    public private(set) var pressure: Double
-    public private(set) var humidity: Double
-    public private(set) var wind: Wind?
-    public private(set) var sun: Sun?
-    public private(set) var status: Status?
+    var description: String
+    var cloudiness: Int
+    var pressure: Double
+    var humidity: Double
+    var wind: Wind?
+    var sun: Sun?
+    var status: Status?
     
     override init() {
         self.description = "clear sky"
@@ -82,15 +90,20 @@ class OneDayWeatherExtended: OneDayWeather {
 // singleton
 class WeatherData {
     static let sharedInstance = WeatherData()
-    var data = [OneDayWeather()]
+    var days: [OneDayWeather] = []
+    var today = OneDayWeatherExtended()
     
     private init() {
-        for _ in 1..<6 {
-            data.append(OneDayWeatherExtended())
+        for _ in 0..<5 {
+            days.append(OneDayWeather())
         }
     }
     
     subscript(index: Int) -> OneDayWeather {
-        return data[index]
+        if index == 0 {
+            return today
+        } else {
+            return days[index-1]
+        }
     }
 }
