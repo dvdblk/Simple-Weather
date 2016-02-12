@@ -13,21 +13,21 @@ class TodayViewController: UIViewController {
     @IBOutlet weak var weatherImage: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var statusLabel: UILabel!
-    
-    //let scrollView = UIScrollView(frame: UIScreen.mainScreen().bounds)
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
-        /*self.view.addSubview(scrollView)
-        self.scrollView.alpha = 0
-        self.scrollView.delegate = self
-        self.scrollView.contentSize = CGSize(width: 1000, height: 500)
-        self.scrollView.scrollEnabled = true*/
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func updateUI() {
+        let today = WeatherData.sharedInstance.days[0] as! OneDayWeatherExtended?
+        temperatureLabel.text = today!.temperature!.celsius
+        statusLabel.text = today!.description
+        weatherImage.image = UIImage(named: "\(today!.icon!)")
     }
 
 }

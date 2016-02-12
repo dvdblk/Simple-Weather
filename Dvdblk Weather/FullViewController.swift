@@ -14,15 +14,18 @@ class FullViewController: UIViewController {
     
     let downloader = Downloader()
     var todayVC: TodayViewController!
+    var infoVC: InfoViewController!
     var refreshControl: UIRefreshControl!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         todayVC = storyboard?.instantiateViewControllerWithIdentifier("Today") as! TodayViewController
+        infoVC = storyboard?.instantiateViewControllerWithIdentifier("Info") as! InfoViewController
         todayVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
         var tempFrame = todayVC.view.frame
         tempFrame.origin.x = tempFrame.width
         addChildViewController(todayVC)
+        addChildViewController(infoVC)
         scrollView!.addSubview(todayVC.view)
         todayVC.didMoveToParentViewController(self)
         //scrollView.decelerationRate = 0.1
@@ -33,6 +36,8 @@ class FullViewController: UIViewController {
         refreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
         scrollView.addSubview(self.refreshControl)
         refresh()
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
 
     }
 
@@ -42,27 +47,27 @@ class FullViewController: UIViewController {
     }
     
     func refresh() {
-        /*do {
-            try downloader.getData()
-        } catch Downloader.Error.APIError(let errorMessage) {
-            print(errorMessage)
-        } catch Downloader.Error.HTTPRequestError {
-            print("HTTP Request Error")
-        } catch {
-            print("Some error")
-        }*/
         downloader.getData({ err in
             if let error = err {
                 switch error {
                 case .APIError(let message):
                     print(message)
-                case .HTTPRequestError:
-                    print("http")
+                    return
+                case .HTTPRequestError(let message):
+                    print(message)
+                    return
                 }
             }
-            print("downloaded")
+            print("succesful download")
+            NSNotificationCenter.defaultCenter().postNotificationName("Weather", object: nil)
         })
+        
         self.refreshControl.endRefreshing()
+    }
+    
+    func updateUI() {
+        todayVC.updateUI()
+        infoVC.updateUI()
     }
 }
 
