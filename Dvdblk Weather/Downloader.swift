@@ -16,7 +16,7 @@ class Downloader {
         case APIError(String)
     }
     
-    typealias CompletionErrorClosure = (error: ErrorType?) -> Void
+    typealias CompletionErrorClosure = (error: Error?) -> Void
     
     func fetchUrl(url: String, completion: (json: JSON) -> (), fail: () -> ()) {
         let req = NSMutableURLRequest(URL: NSURL(string: url)!)
@@ -26,6 +26,7 @@ class Downloader {
                 return
             }
             guard let tempResponse = response as? NSHTTPURLResponse where tempResponse.statusCode == 200 else {
+                fail()
                 return
             }
             completion(json: JSON(data: data!))
@@ -33,7 +34,7 @@ class Downloader {
         task.resume()
     }
     
-    func getData(completionHandle: (error: Error)) {
+    func getData(completionHandle: CompletionErrorClosure) {
         // get data and wait for both finished -> Parser -> WeatherData -> NSNotification in didSet
         var completedJSONData: [JSON] = []
         let dispatchGroup = dispatch_group_create()
@@ -48,50 +49,67 @@ class Downloader {
         }
         dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), {
             if completedJSONData.count == self.urlList.count {
-                try self.handleData(completedJSONData)
+                self.handleData(completedJSONData, completionHandle: completionHandle)
             } else {
-                throw Error.HTTPRequestError
+                completionHandle(error: Error.HTTPRequestError)
             }
-        }
+        })
     }
     
-    func handleData(rawJsonArr: [JSON]) throws -> () {
-        func prepareForecastForCurrentHour(rawJson: JSON) throws -> [JSON] {
+    
+    func handleData(rawJsonArr: [JSON], completionHandle: CompletionErrorClosure){
+        /*func guardErrors<T: Comparable>(jsonAttributeArray: [T], typeToReturn: AnyObject) -> AnyObject {
+            
+        }*/
+        
+        func prepareForecastForCurrentHour(rawJson: JSON) -> [JSON] {
             var result: [JSON] = []
             for i in 0..<rawJson["cnt"].intValue/8 {
                 result.append(rawJson["list"][6+i*8])
             }
             if result.count == 0 {
-                throw Error.APIError("API Having Trouble")
+                completionHandle(error: Error.APIError("API Having Trouble"))
             }
             return result
         }
         
-        func parseAndSave(json: JSON, var forDay day: AnyObject) throws -> () {
+        func parseAndSave(json: JSON, var forDay day: AnyObject) {
             day = day as! OneDayWeather
             guard let id = json["weather"][0]["id"].int else {
-                throw Error.APIError("weather id")
+                completionHandle(error: Error.APIError("weather id"))
+                return
             }
             guard let temperature = json["main"]["temp"].double as Temperature? else {
-                throw Error.APIError("temperature")
+                completionHandle(error: Error.APIError("temperature"))
+                return
             }
             guard let icon = json["weather"][0]["icon"].string else {
-                throw Error.APIError("weather icon")
+                completionHandle(error: Error.APIError("weather icon"))
+                return
             }
             guard let date = json["dt"].int as UnixTime? else {
-                throw Error.APIError("date")
+                completionHandle(error: Error.APIError("date"))
+                return
             }
             if day is OneDayWeatherExtended {
-                
+                guard let desc = json["weather"][0]["description"].string else {
+                    completionHandle(error: Error.APIError("weather description"))
+                    return
+                }
+                guard let cloudiness = json["weather"][0][""].string else {
+                    completionHandle(error: Error.APIError("weather description"))
+                    return
+                }
             } else {
                 day = OneDayWeather(id: id, temp: temperature, icon: icon, date: date)
             }
         }
         
-        try parseAndSave(rawJsonArr[0], forDay: WeatherData.sharedInstance.today as AnyObject)
-        let tempJSArray = try prepareForecastForCurrentHour(rawJsonArr[1])
+        parseAndSave(rawJsonArr[0], forDay: WeatherData.sharedInstance.today as AnyObject)
+        let tempJSArray = prepareForecastForCurrentHour(rawJsonArr[1])
         for index in 0..<tempJSArray.count {
-            try parseAndSave(tempJSArray[index], forDay: WeatherData.sharedInstance.days[index] as AnyObject)
+            parseAndSave(tempJSArray[index], forDay: WeatherData.sharedInstance.days[index] as AnyObject)
         }
+        completionHandle(error: nil)
     }
 }
