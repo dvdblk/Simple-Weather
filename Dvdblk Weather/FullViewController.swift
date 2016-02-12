@@ -44,13 +44,12 @@ class FullViewController: UIViewController {
     func refresh() {
         do {
             try downloader.getData()
-            
         } catch Downloader.Error.APIError(let errorMessage) {
-            
-        } catch Downloader.Error.HTTPRequestError(let statusCode) {
-            
+            print(errorMessage)
+        } catch Downloader.Error.HTTPRequestError {
+            print("HTTP Request Error")
         } catch {
-            
+            print("Some error")
         }
         self.refreshControl.endRefreshing()
     }

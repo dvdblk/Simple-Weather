@@ -12,40 +12,47 @@ class Downloader {
     let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]
     
     enum Error: ErrorType {
-        case HTTPRequestError(Int)
+        case HTTPRequestError
         case APIError(String)
     }
     
-    func fetchUrl(url: String, completion: (json: JSON) -> ()) {
+    typealias CompletionErrorClosure = (error: ErrorType?) -> Void
+    
+    func fetchUrl(url: String, completion: (json: JSON) -> (), fail: () -> ()) {
         let req = NSMutableURLRequest(URL: NSURL(string: url)!)
         let task = NSURLSession.sharedSession().dataTaskWithRequest(req, completionHandler: { (data, response, error) -> Void in
-            var json: JSON?
-            guard let tempResponse = response as? NSHTTPURLResponse where tempResponse.statusCode == 200 else {
-                print("err")
+            if error != nil {
+                fail()
                 return
             }
-            json = JSON(data: data!)
-            //print(json)
-            completion(json: json!)
-            //completion(JSON(data: data!))
+            guard let tempResponse = response as? NSHTTPURLResponse where tempResponse.statusCode == 200 else {
+                return
+            }
+            completion(json: JSON(data: data!))
         })
         task.resume()
     }
     
-    func getData() throws -> () {
+    func getData(completionHandle: (error: Error)) {
         // get data and wait for both finished -> Parser -> WeatherData -> NSNotification in didSet
         var completedJSONData: [JSON] = []
         let dispatchGroup = dispatch_group_create()
-        
-        for url in urlList {
+        for url in self.urlList {
             dispatch_group_enter(dispatchGroup)
-            fetchUrl(url, completion: { (json) in
+            self.fetchUrl(url, completion: { json in
                 completedJSONData.append(json)
+                dispatch_group_leave(dispatchGroup)
+            }, fail: {
                 dispatch_group_leave(dispatchGroup)
             })
         }
-        dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER)
-        try handleData(completedJSONData)
+        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), {
+            if completedJSONData.count == self.urlList.count {
+                try self.handleData(completedJSONData)
+            } else {
+                throw Error.HTTPRequestError
+            }
+        }
     }
     
     func handleData(rawJsonArr: [JSON]) throws -> () {
