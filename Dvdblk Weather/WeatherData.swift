@@ -38,71 +38,22 @@ extension UnixTime {
     }
 }
 
-struct Wind {
-    var speed: Double?
-    var degree: Double?
-    
-    init?(speed: Double?, deg: Double?) {
-        if speed == nil { return nil }
-        self.speed = speed
-        if deg == nil { return nil }
-        self.degree = deg
-    }
-}
-
-struct Sun {
-    var rise: UnixTime?
-    var set: UnixTime?
-    
-    init?(rise: UnixTime?, set: UnixTime?) {
-        if rise == nil { return nil }
-        self.rise = rise
-        if set == nil { return nil }
-        self.set = set
-    }
-}
-
-struct Precipitation {
-    var rain3h: Double?
-    var snow3h: Double?
-    
-    init?(rain: Double?, snow: Double?) {
-        if rain == nil { return nil }
-        self.rain3h = rain
-        if snow == nil { return nil }
-        self.snow3h = snow
-    }
-}
-
-struct Status {
-    var cloudiness: Int?
-    var pressure: Double?
-    var humidity: Double?
-    
-    init?(cloud: Int?, press: Double?, humidity: Double?) {
-        if cloud == nil { return nil }
-        self.cloudiness = cloud
-        if press == nil { return nil }
-        self.pressure = press
-        if humidity == nil { return nil }
-        self.humidity = humidity
-    }
-}
-
 class OneDayWeather {
     var id: Int?
     var temperature: Temperature?
     var icon: String?
     var date: UnixTime?
+    var description: String?
     
     init() {
         self.id = 800
-        self.temperature = -460
+        self.temperature = 0
         self.icon = "01d.png"
         self.date = 0
+        self.description = "clear sky"
     }
     
-    init?(id: Int?, temp: Temperature?, icon: String?, date: UnixTime?) {
+    init?(id: Int?, temp: Temperature?, icon: String?, date: UnixTime?, desc: String?) {
         if id == nil { return nil }
         self.id = id
         if temp == nil { return nil }
@@ -111,32 +62,53 @@ class OneDayWeather {
         self.icon = icon
         if date == nil { return nil }
         self.date = date
+        if desc == nil { return nil }
+        self.description = desc
+    }
+}
+
+struct dataCell {
+    // try to make it into one value instead of 2 !!! ~~> generics?
+    var attributeIdentifier: String = ""
+    var intValue: UnixTime?
+    var doubleValue: Double?
+
+    init?(intValue: UnixTime?, attributeID: String) {
+        self.intValue = intValue
+        self.attributeIdentifier = attributeID
+    }
+    
+    init?(dblValue: Double?, attributeID: String) {
+        self.doubleValue = dblValue
+        self.attributeIdentifier = attributeID
     }
 }
 
 class OneDayWeatherExtended: OneDayWeather {
-    var description: String?
-    var status: Status?
-    var wind: Wind?
-    var sun: Sun?
-    var precipitation: Precipitation?
+    var dataArray: [dataCell?] = []
+    
+    func cell(forAttribute attr: String) -> String {
+        for data in dataArray {
+            if data?.attributeIdentifier == attr {
+                let result = data?.intValue
+                if result == nil { return String(data!.doubleValue!) }
+                return result!.toHour
+            }
+        }
+        return "---"
+    }
+    
+    func cell(forIndex index: Int) -> String {
+        return cell(forAttribute: dataArray[index]!.attributeIdentifier)
+    }
     
     override init() {
-        self.description = "clear sky"
         super.init()
     }
     
-    init?(desc: String?, status: Status?, wind: Wind?, sun: Sun?, preci: Precipitation?, baseDay: OneDayWeather?) {
-        super.init(id: baseDay?.id, temp: baseDay?.temperature, icon: baseDay?.icon, date: baseDay?.date)
-        if desc == nil { return nil }
-        self.description = desc
-        if status == nil { return nil }
-        self.status = status
-        if wind == nil { return nil }
-        self.wind = wind
-        if sun == nil { return nil }
-        self.sun = sun
-        self.precipitation = preci
+    init?(arr: [dataCell?], baseDay: OneDayWeather?) {
+        super.init(id: baseDay?.id, temp: baseDay?.temperature, icon: baseDay?.icon, date: baseDay?.date, desc: baseDay?.description)
+        self.dataArray = arr
     }
     
     
@@ -146,16 +118,16 @@ class OneDayWeatherExtended: OneDayWeather {
 class WeatherData {
     static let sharedInstance = WeatherData()
     var days: [OneDayWeather?] = []
-    
+    var today: OneDayWeatherExtended {
+        return days[0] as! OneDayWeatherExtended
+    }
     private init() {
         days.append(OneDayWeatherExtended())
         for _ in 0..<5 {
             days.append(OneDayWeather())
         }
     }
-    
     subscript(index: Int) -> OneDayWeather {
         return days[index]!
     }
-
 }

@@ -28,7 +28,6 @@ class FullViewController: UIViewController {
         addChildViewController(infoVC)
         scrollView!.addSubview(todayVC.view)
         todayVC.didMoveToParentViewController(self)
-        //scrollView.decelerationRate = 0.1
         scrollView.delegate = self
         
         refreshControl = UIRefreshControl()
@@ -51,17 +50,16 @@ class FullViewController: UIViewController {
             if let error = err {
                 switch error {
                 case .APIError(let message):
-                    print(message)
+                    print("API ERR: \(message)")
                     return
                 case .HTTPRequestError(let message):
-                    print(message)
+                    print("HTTP ERR: \(message)")
                     return
                 }
             }
             print("succesful download")
             NSNotificationCenter.defaultCenter().postNotificationName("Weather", object: nil)
         })
-        
         self.refreshControl.endRefreshing()
     }
     

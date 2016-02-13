@@ -12,11 +12,13 @@ class InfoViewController: UIViewController {
 
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var pageControl: UIPageControl!
+    var currentVC: CurrentViewController!
+    var forecast5VC: Forecast5ViewController!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let currentVC = storyboard?.instantiateViewControllerWithIdentifier("Current") as! CurrentViewController
-        let forecast5VC = storyboard?.instantiateViewControllerWithIdentifier("Forecast5") as! Forecast5ViewController
+        currentVC = storyboard?.instantiateViewControllerWithIdentifier("Current") as! CurrentViewController
+        forecast5VC = storyboard?.instantiateViewControllerWithIdentifier("Forecast5") as! Forecast5ViewController
         
         currentVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
         var tempFrame = currentVC.view.frame
@@ -45,7 +47,8 @@ class InfoViewController: UIViewController {
     }
     
     func updateUI() {
-        
+        currentVC.tableView.reloadData()
+        forecast5VC.tableView.reloadData()
     }
 
 }

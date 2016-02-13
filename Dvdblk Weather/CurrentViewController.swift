@@ -33,14 +33,13 @@ class CurrentViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 10
+        return WeatherData.sharedInstance.today.dataArray.count
     }
 
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Current", forIndexPath: indexPath) as! CurrentCell
-
-        // Configure the cell...
+        cell.testLabel.text = WeatherData.sharedInstance.today.cell(forIndex: indexPath.row)
         return cell
     }
     

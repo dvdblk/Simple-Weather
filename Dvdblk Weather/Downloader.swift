@@ -19,7 +19,7 @@ class Downloader {
     typealias CompletionErrorClosure = (error: Error?) -> Void
     
     func fetchUrl(url: String, downloadCompletion: (json: JSON) -> (), downloadFail: (Error) -> ()) {
-        let req = NSMutableURLRequest(URL: NSURL(string: url)!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData, timeoutInterval: 10.0)
+        let req = NSMutableURLRequest(URL: NSURL(string: url)!)
         let task = NSURLSession.sharedSession().dataTaskWithRequest(req, completionHandler: { (data, response, error) -> Void in
             if let tempErr = error {
                 downloadFail(Error.HTTPRequestError(tempErr.localizedDescription))
@@ -61,11 +61,7 @@ class Downloader {
     }
     
     
-    func handleData(rawJsonArr: [JSON], completionHandle: CompletionErrorClosure){
-        /*func guardErrors<T: Comparable>(jsonAttributeArray: [T], typeToReturn: AnyObject) -> AnyObject {
-            
-        }*/
-        
+    func handleData(rawJsonArr: [JSON], completionHandle: CompletionErrorClosure) {
         func prepareForecastForCurrentHour(rawJson: JSON) -> [JSON]? {
             var result: [JSON] = []
             for i in 0..<rawJson["cnt"].intValue/8 {
@@ -83,25 +79,22 @@ class Downloader {
             let temperature = json["main"]["temp"].double as Temperature?
             let icon = json["weather"][0]["icon"].string
             let date = json["dt"].int as UnixTime?
-            let tempDay = OneDayWeather(id: id, temp: temperature, icon: icon, date: date)
+            let desc = json["weather"][0]["description"].string
+            let tempDay = OneDayWeather(id: id, temp: temperature, icon: icon, date: date, desc: desc)
             
             if day is OneDayWeatherExtended {
-                let desc = json["weather"][0]["description"].string
-                let cloudiness = json["clouds"]["all"].int
-                let pressure = json["main"]["pressure"].double
-                let humidity = json["main"]["humidity"].double
-                let windSpeed = json["wind"]["speed"].double
-                let windDeg = json["wind"]["deg"].double
-                let sunrise = json["sys"]["sunrise"].int as UnixTime?
-                let sunset = json["sys"]["sunset"].int as UnixTime?
-                let rain = json["rain"]["3h"].double
-                let snow = json["snow"]["3h"].double
-
-                let status = Status(cloud: cloudiness, press: pressure, humidity: humidity)
-                let wind = Wind(speed: windSpeed, deg: windDeg)
-                let sun = Sun(rise: sunrise, set: sunset)
-                let precipitation = Precipitation(rain: rain, snow: snow)
-                day = OneDayWeatherExtended(desc: desc, status: status, wind: wind, sun: sun, preci: precipitation, baseDay: tempDay)
+                let today = OneDayWeatherExtended()
+                today.dataArray.append(dataCell(dblValue: json["clouds"]["all"].double, attributeID: "clouds"))
+                today.dataArray.append(dataCell(dblValue: json["main"]["pressure"].double, attributeID: "pressure"))
+                today.dataArray.append(dataCell(dblValue: json["main"]["humidity"].double, attributeID: "humidity"))
+                today.dataArray.append(dataCell(dblValue: json["wind"]["speed"].double, attributeID: "speed"))
+                today.dataArray.append(dataCell(dblValue: json["wind"]["deg"].double, attributeID: "degrees"))
+                today.dataArray.append(dataCell(intValue: json["sys"]["sunrise"].int as UnixTime?, attributeID: "sunrise"))
+                today.dataArray.append(dataCell(intValue: json["sys"]["sunset"].int as UnixTime?, attributeID: "sunset"))
+                today.dataArray.append(dataCell(dblValue: json["rain"]["3h"].double, attributeID: "rain"))
+                today.dataArray.append(dataCell(dblValue: json["snow"]["3h"].double, attributeID: "snow"))
+                today.dataArray = today.dataArray.filter { $0!.doubleValue != nil || $0!.intValue != nil }.map { $0 }
+                day = OneDayWeatherExtended(arr: today.dataArray, baseDay: tempDay)
             } else {
                 day = tempDay
             }
