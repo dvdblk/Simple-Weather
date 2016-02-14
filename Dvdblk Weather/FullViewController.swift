@@ -12,6 +12,13 @@ class FullViewController: UIViewController {
     
     @IBOutlet weak var scrollView: UIScrollView!
     
+    @IBOutlet weak var backgroundImage: UIImageView!
+    
+    var daytime: DayCycle = DayCycle() {
+        didSet {
+            
+        }
+    }
     let downloader = Downloader()
     var todayVC: TodayViewController!
     var infoVC: InfoViewController!
@@ -19,24 +26,22 @@ class FullViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
         todayVC = storyboard?.instantiateViewControllerWithIdentifier("Today") as! TodayViewController
-        infoVC = storyboard?.instantiateViewControllerWithIdentifier("Info") as! InfoViewController
         todayVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
         var tempFrame = todayVC.view.frame
         tempFrame.origin.x = tempFrame.width
         addChildViewController(todayVC)
-        addChildViewController(infoVC)
         scrollView!.addSubview(todayVC.view)
         todayVC.didMoveToParentViewController(self)
         scrollView.delegate = self
+        view.backgroundColor = UIColor(red: 130/255, green: 192/255, blue: 255, alpha: 1)
         
         refreshControl = UIRefreshControl()
         refreshControl.attributedTitle = NSAttributedString(string: "Pull2Refresh")
         refreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
         scrollView.addSubview(self.refreshControl)
         refresh()
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
 
     }
 
@@ -59,19 +64,22 @@ class FullViewController: UIViewController {
             }
             print("succesful download")
             NSNotificationCenter.defaultCenter().postNotificationName("Weather", object: nil)
+            
         })
         self.refreshControl.endRefreshing()
     }
     
     func updateUI() {
         todayVC.updateUI()
-        infoVC.updateUI()
+        daytime.set()
     }
 }
 
 extension FullViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(scrollView: UIScrollView) {
-        
+        if (scrollView.contentOffset.y > 0) {
+            scrollView.contentOffset = CGPointMake(0, 0)
+        }
     }
 }
 

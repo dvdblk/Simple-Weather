@@ -9,7 +9,9 @@
 import Foundation
 
 class Downloader {
-    let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]
+    //let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=44db6a862fba0b067b1930da0d769e98", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=44db6a862fba0b067b1930da0d769e98"] default API key
+    //let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]
+    let urlList = ["http://www.dvdblk.com/devel/weather.html", "http://www.dvdblk.com/devel/forecast.html"]
     
     enum Error: ErrorType {
         case HTTPRequestError(String)
@@ -62,10 +64,18 @@ class Downloader {
     
     
     func handleData(rawJsonArr: [JSON], completionHandle: CompletionErrorClosure) {
-        func prepareForecastForCurrentHour(rawJson: JSON) -> [JSON]? {
+        func prepareForecastForCurrentHour() -> [JSON]? {
             var result: [JSON] = []
-            for i in 0..<rawJson["cnt"].intValue/8 {
-                result.append(rawJson["list"][6+i*8])
+            var tempJSON = rawJsonArr[0]
+            if tempJSON["cnt"].int == nil {
+                tempJSON = rawJsonArr[1]
+                result.append(rawJsonArr[0])
+            } else {
+                result.append(rawJsonArr[1])
+            }
+            // fix for different hours probably?
+            for i in 0..<tempJSON["cnt"].intValue/8 {
+                result.append(tempJSON["list"][6+i*8])
             }
             if result.count == 0 {
                 return nil
@@ -84,15 +94,15 @@ class Downloader {
             
             if day is OneDayWeatherExtended {
                 let today = OneDayWeatherExtended()
-                today.dataArray.append(dataCell(dblValue: json["clouds"]["all"].double, attributeID: "clouds"))
-                today.dataArray.append(dataCell(dblValue: json["main"]["pressure"].double, attributeID: "pressure"))
-                today.dataArray.append(dataCell(dblValue: json["main"]["humidity"].double, attributeID: "humidity"))
-                today.dataArray.append(dataCell(dblValue: json["wind"]["speed"].double, attributeID: "speed"))
-                today.dataArray.append(dataCell(dblValue: json["wind"]["deg"].double, attributeID: "degrees"))
-                today.dataArray.append(dataCell(intValue: json["sys"]["sunrise"].int as UnixTime?, attributeID: "sunrise"))
-                today.dataArray.append(dataCell(intValue: json["sys"]["sunset"].int as UnixTime?, attributeID: "sunset"))
-                today.dataArray.append(dataCell(dblValue: json["rain"]["3h"].double, attributeID: "rain"))
-                today.dataArray.append(dataCell(dblValue: json["snow"]["3h"].double, attributeID: "snow"))
+                today.dataArray.append(dataCell(dblValue: json["clouds"]["all"].double, attributeID: "clouds", "%"))
+                today.dataArray.append(dataCell(dblValue: json["main"]["pressure"].double, attributeID: "pressure", "hPa"))
+                today.dataArray.append(dataCell(dblValue: json["main"]["humidity"].double, attributeID: "humidity", "%"))
+                today.dataArray.append(dataCell(dblValue: json["wind"]["speed"].double, attributeID: "speed", "m/s"))
+                today.dataArray.append(dataCell(dblValue: json["wind"]["deg"].double, attributeID: "degrees", ""))
+                today.dataArray.append(dataCell(intValue: json["sys"]["sunrise"].int as UnixTime?, attributeID: "sunrise", ""))
+                today.dataArray.append(dataCell(intValue: json["sys"]["sunset"].int as UnixTime?, attributeID: "sunset", ""))
+                today.dataArray.append(dataCell(dblValue: json["rain"]["3h"].double, attributeID: "rain", "mm"))
+                today.dataArray.append(dataCell(dblValue: json["snow"]["3h"].double, attributeID: "snow", "mm"))
                 today.dataArray = today.dataArray.filter { $0!.doubleValue != nil || $0!.intValue != nil }.map { $0 }
                 day = OneDayWeatherExtended(arr: today.dataArray, baseDay: tempDay)
             } else {
@@ -104,11 +114,10 @@ class Downloader {
             return nil
         }
         
-        guard var tempJSArray = prepareForecastForCurrentHour(rawJsonArr[1]) else {
-            completionHandle(error: Error.APIError("WeatherAPI Website Having Trouble..."))
+        guard var tempJSArray = prepareForecastForCurrentHour() else {
+            completionHandle(error: Error.APIError("Weather Website Having Trouble..."))
             return
         }
-        tempJSArray.insert(rawJsonArr[0], atIndex: 0)
         var result: Error?
         for index in 0..<tempJSArray.count {
             result = parseAndSave(tempJSArray[index], forDay: &WeatherData.sharedInstance.days[index])

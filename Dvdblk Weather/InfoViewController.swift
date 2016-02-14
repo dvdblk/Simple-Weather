@@ -19,7 +19,6 @@ class InfoViewController: UIViewController {
         super.viewDidLoad()
         currentVC = storyboard?.instantiateViewControllerWithIdentifier("Current") as! CurrentViewController
         forecast5VC = storyboard?.instantiateViewControllerWithIdentifier("Forecast5") as! Forecast5ViewController
-        
         currentVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
         var tempFrame = currentVC.view.frame
         tempFrame.origin.x = tempFrame.width
@@ -29,24 +28,27 @@ class InfoViewController: UIViewController {
         scrollView!.addSubview(forecast5VC.view)
         forecast5VC.didMoveToParentViewController(self)
         addChildViewController(currentVC)
-        scrollView!.addSubview(currentVC.view)
+        scrollView.addSubview(currentVC.view)
         currentVC.didMoveToParentViewController(self)
         
         let scrollW = 2 * scrollView.frame.size.width
         let scrollH = scrollView.frame.size.height
-        scrollView!.contentSize = CGSizeMake(scrollW, scrollH)
+        scrollView.contentSize = CGSizeMake(scrollW, scrollH)
+        scrollView.layer.cornerRadius = 10
         
         scrollView.delegate = self
+        view.backgroundColor = UIColor(red: 101/255, green: 101/255, blue: 101/255, alpha: 0.20)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
         
-        // Do any additional setup after loading the view.
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+
     }
     
     func updateUI() {
+        if currentVC == nil { print("view is nil...") }
         currentVC.tableView.reloadData()
         forecast5VC.tableView.reloadData()
     }
