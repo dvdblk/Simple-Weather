@@ -9,14 +9,10 @@
 import UIKit
 
 class CurrentViewController: UITableViewController {
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        tableView.separatorStyle = .None
     }
 
     override func didReceiveMemoryWarning() {
@@ -34,12 +30,18 @@ class CurrentViewController: UITableViewController {
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return WeatherData.sharedInstance.today.dataArray.count
+        //return 3
     }
 
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Current", forIndexPath: indexPath) as! CurrentCell
-        cell.testLabel.text = WeatherData.sharedInstance.today.cell(forIndex: indexPath.row)
+        
+        let data = WeatherData.sharedInstance.today.cellString(forIndex: indexPath.row)
+        let dataIdentifier = WeatherData.sharedInstance.today.attribute(forIndex: indexPath.row)
+        cell.attributeLabel.text = dataIdentifier
+        cell.valueLabel.text = data
+        //cell.attributeImageView.image = ...
         return cell
     }
     

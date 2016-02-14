@@ -14,6 +14,7 @@ typealias UnixTime = Int
 extension Temperature {
     var celsius: String {
         let formatter = NSNumberFormatter()
+        formatter.minimumIntegerDigits = 1
         formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = 1
         return "\(formatter.stringFromNumber(round((self - 273.15)*2)/2)!) ℃"
@@ -35,6 +36,23 @@ extension UnixTime {
     }
     var toDay: String {
         return formatType("EEEE").stringFromDate(dateFull)
+    }
+}
+
+enum DayCycle {
+    case Day, Night
+    init() {
+        self = .Day
+    }
+    
+    mutating func set() {
+        let now = Int(NSDate().timeIntervalSince1970)
+        let sunr = WeatherData.sharedInstance.today.cell(forAttribute: "sunrise")?.intValue
+        let suns = WeatherData.sharedInstance.today.cell(forAttribute: "sunset")?.intValue
+        self = .Night
+        if (now >= sunr) && (now < suns) {
+            self = .Day
+        }
     }
 }
 
@@ -70,36 +88,54 @@ class OneDayWeather {
 struct dataCell {
     // try to make it into one value instead of 2 !!! ~~> generics?
     var attributeIdentifier: String = ""
+    var unit: String = ""
     var intValue: UnixTime?
     var doubleValue: Double?
 
-    init?(intValue: UnixTime?, attributeID: String) {
+    init?(intValue: UnixTime?, attributeID: String, _ unit: String) {
         self.intValue = intValue
         self.attributeIdentifier = attributeID
+        self.unit = unit
     }
     
-    init?(dblValue: Double?, attributeID: String) {
+    init?(dblValue: Double?, attributeID: String, _ unit: String) {
         self.doubleValue = dblValue
         self.attributeIdentifier = attributeID
+        self.unit = unit
     }
 }
 
 class OneDayWeatherExtended: OneDayWeather {
     var dataArray: [dataCell?] = []
     
-    func cell(forAttribute attr: String) -> String {
-        for data in dataArray {
-            if data?.attributeIdentifier == attr {
-                let result = data?.intValue
-                if result == nil { return String(data!.doubleValue!) }
-                return result!.toHour
-            }
+    func cellString(forAttribute attr: String) -> String {
+        let data = cell(forAttribute: attr)
+        let formatter = NSNumberFormatter()
+        formatter.minimumIntegerDigits = 1
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 1
+        let result = data!.intValue
+        if result == nil {
+            return "\(formatter.stringFromNumber(data!.doubleValue!)!) \(data!.unit)"
         }
-        return "---"
+        return result!.toHour
     }
     
-    func cell(forIndex index: Int) -> String {
-        return cell(forAttribute: dataArray[index]!.attributeIdentifier)
+    func cell(forAttribute attr: String) -> dataCell? {
+        for data in dataArray {
+            if data?.attributeIdentifier == attr {
+                return data
+            }
+        }
+        return nil
+    }
+    
+    func cellString(forIndex index: Int) -> String {
+        return cellString(forAttribute: dataArray[index]!.attributeIdentifier)
+    }
+    
+    func attribute(forIndex index: Int) -> String {
+        return (dataArray[index]?.attributeIdentifier)!
     }
     
     override init() {
@@ -118,6 +154,7 @@ class OneDayWeatherExtended: OneDayWeather {
 class WeatherData {
     static let sharedInstance = WeatherData()
     var days: [OneDayWeather?] = []
+    
     var today: OneDayWeatherExtended {
         return days[0] as! OneDayWeatherExtended
     }
@@ -130,4 +167,6 @@ class WeatherData {
     subscript(index: Int) -> OneDayWeather {
         return days[index]!
     }
+    
+    
 }

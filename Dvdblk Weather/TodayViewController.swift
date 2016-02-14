@@ -24,10 +24,9 @@ class TodayViewController: UIViewController {
     }
     
     func updateUI() {
-        let today = WeatherData.sharedInstance.days[0] as! OneDayWeatherExtended
-        temperatureLabel.text = today.temperature?.celsius
-        statusLabel.text = today.description
-        weatherImage.image = UIImage(named: "\(today.icon!)")
+        temperatureLabel.text = WeatherData.sharedInstance.today.temperature?.celsius
+        statusLabel.text = WeatherData.sharedInstance.today.description
+        weatherImage.image = UIImage(named: "\(WeatherData.sharedInstance.today.icon!)")
     }
 
 }

@@ -12,17 +12,11 @@ class Forecast5ViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        tableView.separatorInset = UIEdgeInsetsZero
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     // MARK: - Table view data source
@@ -34,15 +28,16 @@ class Forecast5ViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 4
+        return WeatherData.sharedInstance.days.count - 1
     }
 
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Forecast5", forIndexPath: indexPath) as! Forecast5Cell
-
-        // Configure the cell...
-
+        let day = WeatherData.sharedInstance.days[indexPath.row + 1]
+        cell.dayLabel.text = day?.date?.toDay
+        cell.temperatureLabel.text = day?.temperature?.celsius
+        cell.iconImageView.image = UIImage(named: (day?.icon)!)
         return cell
     }
     

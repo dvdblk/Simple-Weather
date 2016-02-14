@@ -16,6 +16,8 @@ class Forecast5Cell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         dayLabel.text = "Monday"
+        self.layoutMargins = UIEdgeInsetsZero
+        
     }
 
     override func setSelected(selected: Bool, animated: Bool) {
@@ -24,4 +26,5 @@ class Forecast5Cell: UITableViewCell {
         // Configure the view for the selected state
     }
 
+    
 }

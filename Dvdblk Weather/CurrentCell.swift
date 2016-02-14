@@ -10,17 +10,17 @@ import UIKit
 
 class CurrentCell: UITableViewCell {
 
-    @IBOutlet weak var testLabel: UILabel!
+    @IBOutlet weak var attributeLabel: UILabel!
+    @IBOutlet weak var valueLabel: UILabel!
+    @IBOutlet weak var attributeImageView: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-        testLabel.text = "asd"
+        
     }
 
     override func setSelected(selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
-        // Configure the view for the selected state
     }
 
 }
