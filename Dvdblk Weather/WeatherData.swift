@@ -49,10 +49,11 @@ enum DayCycle {
         let now = Int(NSDate().timeIntervalSince1970)
         let sunr = WeatherData.sharedInstance.today.cell(forAttribute: "sunrise")?.intValue
         let suns = WeatherData.sharedInstance.today.cell(forAttribute: "sunset")?.intValue
-        self = .Night
-        if (now >= sunr) && (now < suns) {
+        //if (now >= sunr) && (now < suns) {
             self = .Day
-        }
+        //} else {
+        //    self = .Night
+        //}
     }
 }
 

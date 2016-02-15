@@ -14,6 +14,12 @@ class InfoViewController: UIViewController {
     @IBOutlet weak var pageControl: UIPageControl!
     var currentVC: CurrentViewController!
     var forecast5VC: Forecast5ViewController!
+    var fullVC: FullViewController!
+    var bgColor = MyColor() {
+        didSet {
+            setBackgroundColor()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,11 +41,7 @@ class InfoViewController: UIViewController {
         let scrollH = scrollView.frame.size.height
         scrollView.contentSize = CGSizeMake(scrollW, scrollH)
         scrollView.layer.cornerRadius = 10
-        
         scrollView.delegate = self
-        view.backgroundColor = UIColor(red: 101/255, green: 101/255, blue: 101/255, alpha: 0.20)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -48,9 +50,14 @@ class InfoViewController: UIViewController {
     }
     
     func updateUI() {
-        if currentVC == nil { print("view is nil...") }
         currentVC.tableView.reloadData()
         forecast5VC.tableView.reloadData()
+        setBackgroundColor()
+    }
+    
+    func setBackgroundColor() {
+        scrollView.backgroundColor = bgColor.HSBcolor()
+        pageControl.pageIndicatorTintColor = bgColor.HSBcolor()
     }
 
 }
@@ -61,3 +68,8 @@ extension InfoViewController: UIScrollViewDelegate {
     }
 }
 
+extension UIPageControl {
+    public override func tintColorDidChange() {
+        currentPageIndicatorTintColor = tintColor
+    }
+}

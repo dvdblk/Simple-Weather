@@ -8,6 +8,8 @@
 
 import UIKit
 
+var TEMP_CLOUDS: CGFloat = 0.0
+
 class TodayViewController: UIViewController {
     
     @IBOutlet weak var weatherImage: UIImageView!
@@ -29,4 +31,8 @@ class TodayViewController: UIViewController {
         weatherImage.image = UIImage(named: "\(WeatherData.sharedInstance.today.icon!)")
     }
 
+    @IBAction func asd(sender: UISlider) {
+        TEMP_CLOUDS = CGFloat(sender.value)
+        NSNotificationCenter.defaultCenter().postNotificationName("Weather", object: nil)
+    }
 }

@@ -10,8 +10,8 @@ import Foundation
 
 class Downloader {
     //let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=44db6a862fba0b067b1930da0d769e98", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=44db6a862fba0b067b1930da0d769e98"] default API key
-    //let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]
-    let urlList = ["http://www.dvdblk.com/devel/weather.html", "http://www.dvdblk.com/devel/forecast.html"]
+    let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]
+    //let urlList = ["http://www.dvdblk.com/devel/weather.html", "http://www.dvdblk.com/devel/forecast.html"]
     
     enum Error: ErrorType {
         case HTTPRequestError(String)
@@ -53,7 +53,7 @@ class Downloader {
                 dispatch_group_leave(dispatchGroup)
             })
         }
-        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), { [unowned self] in
+        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), {
             if result != nil {
                 completionHandle(error: result)
                 return
