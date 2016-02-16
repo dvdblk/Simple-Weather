@@ -58,6 +58,8 @@ class InfoViewController: UIViewController {
     func setBackgroundColor() {
         scrollView.backgroundColor = bgColor.HSBcolor()
         pageControl.pageIndicatorTintColor = bgColor.HSBcolor()
+        pageControl.currentPageIndicatorTintColor = view.tintColor
+
     }
 
 }
@@ -70,6 +72,5 @@ extension InfoViewController: UIScrollViewDelegate {
 
 extension UIPageControl {
     public override func tintColorDidChange() {
-        currentPageIndicatorTintColor = tintColor
     }
 }

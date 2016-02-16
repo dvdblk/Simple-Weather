@@ -37,7 +37,7 @@ struct MyColor {
     }
     
     func dayClouds(cloudiness: CGFloat) -> UIColor {
-        return UIColor(hue: hue, saturation: saturation - (0.17 * TEMP_CLOUDS), brightness: brightness - (0.2 * TEMP_CLOUDS), alpha: 1)
+        return UIColor(hue: hue, saturation: saturation - (0.17 * cloudiness), brightness: brightness - (0.2 * cloudiness), alpha: 1)
     }
     
     func nightClouds(cloudiness: CGFloat) -> UIColor {
@@ -59,17 +59,21 @@ class FullViewController: UIViewController {
             setBackgroundColor()
         }
     }
-    
     let downloader = Downloader()
     var todayVC: TodayViewController!
     var infoVC: InfoViewController!
     var refreshControl: UIRefreshControl!
     var color = MyColor()
+    let gradientLayer = CAGradientLayer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
         UILabel.appearance().font = UIFont(name: "Helvetica", size: 17)
+        view.backgroundColor = color.HSBcolor()
+        view.layer.insertSublayer(gradientLayer, atIndex: 0)
+        gradientLayer.frame = view.bounds
+
         todayVC = storyboard?.instantiateViewControllerWithIdentifier("Today") as! TodayViewController
         todayVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
         var tempFrame = todayVC.view.frame
@@ -77,11 +81,13 @@ class FullViewController: UIViewController {
         addChildViewController(todayVC)
         scrollView!.addSubview(todayVC.view)
         todayVC.didMoveToParentViewController(self)
+        todayVC.view.alpha = 0
+        infoVC.view.alpha = 0
+        
+        
         scrollView.delegate = self
-        view.backgroundColor = color.HSBcolor()
         
         refreshControl = UIRefreshControl()
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull2Refresh")
         refreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
         scrollView.addSubview(self.refreshControl)
         refresh()
@@ -101,56 +107,72 @@ class FullViewController: UIViewController {
     }
     
     func refresh() {
-        downloader.getData({ [unowned self] err in
+        downloader.getData({ err in
             if let error = err {
                 var message: String = "No errors!"
                 switch error {
-                case .APIError(message):
-                    message = "API: \(message)"
-                case .HTTPRequestError(message):
-                    message = "HTTP: \(message)"
-                default:
-                    message = "Couldnt connect to the interwebz!"
+                case .APIError(let errorMessage):
+                    message = "API: \(errorMessage)"
+                case .HTTPRequestError(let errorMessage):
+                    message = "HTTP: \(errorMessage)"
                 }
-                let alertControl = UIAlertController(title: "Error encountered :(", message: message, preferredStyle: .Alert)
-                alertControl.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+                let alertControl = UIAlertController(title: "Error encountered!", message: message, preferredStyle: .Alert)
+                alertControl.addAction(UIAlertAction(title: "Dismiss", style: .Default, handler: nil))
                 self.presentViewController(alertControl, animated: true, completion: nil)
+                alertControl.view.tintColor = UIColor.blackColor()
+                self.refreshControl.endRefreshing()
                 return
             }
             print("succesful download")
             NSNotificationCenter.defaultCenter().postNotificationName("Weather", object: nil)
-            
+            self.refreshControl.endRefreshing()
+
         })
-        self.refreshControl.endRefreshing()
     }
     
     func updateUI() {
         todayVC.updateUI()
         infoVC.updateUI()
-        daytime.set()
+        UIView.animateWithDuration(0.5, animations: { self.daytime.set() }, completion: { finish in
+            UIView.animateWithDuration(1.5, animations: {
+                self.todayVC.view.alpha = 1
+                self.infoVC.view.alpha = 1
+            })
+        })
+        
     }
     
     override func preferredStatusBarStyle() -> UIStatusBarStyle {
+        let result: UIStatusBarStyle!
+        var color1: CGColorRef!
+        let color2 = UIColor.clearColor().CGColor
         if daytime == .Night {
             view.tintColor = UIColor.whiteColor()
-            color.setColors([205/360,1,0.1])
+            color.setColors([205/360,1,0.1,1])
             infoVC.bgColor.setColors([0,0,0.78,0.2])
-            return .LightContent
+            color1 = UIColor(hue: 205/360, saturation: 1, brightness: 0.17, alpha: 1).CGColor
+            result = .LightContent
+        } else {
+            view.tintColor = UIColor.blackColor()
+            color = MyColor()
+            infoVC.bgColor.setColors([0,0,0.90,0.4])
+            color1 = UIColor(red: 255, green: 255, blue: 255, alpha: 0.25).CGColor
+            result = .Default
         }
-        view.tintColor = UIColor.blackColor()
-        color = MyColor()
-        infoVC.bgColor.setColors([0,0,0.90,0.4])
-        return .Default
+        gradientLayer.colors = [color1, color2]
+        return result
     }
     
     func setBackgroundColor() {
-        let cloudiness = CGFloat((WeatherData.sharedInstance.today.cell(forAttribute: "clouds")?.doubleValue)!/100)
+        let cloudiness = CGFloat((WeatherData.sharedInstance.today.cell(forAttribute: "clouds")?.dblValue)!) / 100
         if daytime == .Day {
             self.view.backgroundColor = color.dayClouds(cloudiness)
         } else {
             self.view.backgroundColor = color.nightClouds(cloudiness)
         }
     }
+
+
 }
 
 extension FullViewController: UIScrollViewDelegate {
