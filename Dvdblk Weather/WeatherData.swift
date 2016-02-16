@@ -10,6 +10,8 @@ import Foundation
 
 typealias Temperature = Double
 typealias UnixTime = Int
+typealias Degrees = Double
+
 
 extension Temperature {
     var celsius: String {
@@ -39,6 +41,13 @@ extension UnixTime {
     }
 }
 
+extension Degrees {
+    var toCompassPoint: String {
+        let directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
+        return directions[Int(round((self%360)/45))]
+    }
+}
+
 enum DayCycle {
     case Day, Night
     init() {
@@ -47,12 +56,13 @@ enum DayCycle {
     
     mutating func set() {
         let now = Int(NSDate().timeIntervalSince1970)
-        let sunr = WeatherData.sharedInstance.today.cell(forAttribute: "sunrise")?.intValue
-        let suns = WeatherData.sharedInstance.today.cell(forAttribute: "sunset")?.intValue
-        self = .Night
-        if (now >= sunr) && (now < suns) {
-            self = .Day
-        }
+        let sunr = Int((WeatherData.sharedInstance.today.cell(forAttribute: "sunrise")?.dblValue)!)
+        let suns = Int((WeatherData.sharedInstance.today.cell(forAttribute: "sunset")?.dblValue)!)
+        //if (now >= sunr) && (now < suns) {
+        //    self = .Day
+        //} else {
+            self = .Night
+        //}
     }
 }
 
@@ -89,17 +99,18 @@ struct dataCell {
     // try to make it into one value instead of 2 !!! ~~> generics?
     var attributeIdentifier: String = ""
     var unit: String = ""
-    var intValue: UnixTime?
-    var doubleValue: Double?
-
-    init?(intValue: UnixTime?, attributeID: String, _ unit: String) {
-        self.intValue = intValue
-        self.attributeIdentifier = attributeID
-        self.unit = unit
-    }
+    var value: String?
+    var dblValue: Double?
     
-    init?(dblValue: Double?, attributeID: String, _ unit: String) {
-        self.doubleValue = dblValue
+    init?(json: JSON, attributeID: String, _ unit: String, stringFunc :(AnyObject) -> (String)) {
+        if let dbl = json.double {
+            self.dblValue = dbl
+        } else if let dbl = json.int {
+            self.dblValue = Double(dbl)
+        } else {
+            return nil
+        }
+        self.value = stringFunc(self.dblValue!)
         self.attributeIdentifier = attributeID
         self.unit = unit
     }
@@ -107,19 +118,6 @@ struct dataCell {
 
 class OneDayWeatherExtended: OneDayWeather {
     var dataArray: [dataCell?] = []
-    
-    func cellString(forAttribute attr: String) -> String {
-        let data = cell(forAttribute: attr)
-        let formatter = NSNumberFormatter()
-        formatter.minimumIntegerDigits = 1
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 1
-        let result = data!.intValue
-        if result == nil {
-            return "\(formatter.stringFromNumber(data!.doubleValue!)!) \(data!.unit)"
-        }
-        return result!.toHour
-    }
     
     func cell(forAttribute attr: String) -> dataCell? {
         for data in dataArray {
@@ -130,8 +128,11 @@ class OneDayWeatherExtended: OneDayWeather {
         return nil
     }
     
-    func cellString(forIndex index: Int) -> String {
-        return cellString(forAttribute: dataArray[index]!.attributeIdentifier)
+    func cell(forIndex index: Int) -> dataCell? {
+        if index >= dataArray.count || index < 0 {
+            return nil
+        }
+        return dataArray[index]
     }
     
     func attribute(forIndex index: Int) -> String {
@@ -154,9 +155,12 @@ class OneDayWeatherExtended: OneDayWeather {
 class WeatherData {
     static let sharedInstance = WeatherData()
     var days: [OneDayWeather?] = []
-    
     var today: OneDayWeatherExtended {
         return days[0] as! OneDayWeatherExtended
+    }
+    var forecastDayCount: Int {
+        let tempArr = days.filter { $0?.temperature != 0 }
+        return tempArr.count - 1
     }
     private init() {
         days.append(OneDayWeatherExtended())

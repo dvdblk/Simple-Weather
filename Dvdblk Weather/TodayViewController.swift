@@ -26,7 +26,11 @@ class TodayViewController: UIViewController {
     func updateUI() {
         temperatureLabel.text = WeatherData.sharedInstance.today.temperature?.celsius
         statusLabel.text = WeatherData.sharedInstance.today.description
-        weatherImage.image = UIImage(named: "\(WeatherData.sharedInstance.today.icon!)")
+        
+        if let myImage = UIImage(named:"\(WeatherData.sharedInstance.today.icon!)") {
+            let tintableImage = myImage.imageWithRenderingMode(.AlwaysTemplate)
+            weatherImage.image = tintableImage
+        }
     }
 
 }

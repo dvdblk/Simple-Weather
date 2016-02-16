@@ -21,7 +21,8 @@ class Downloader {
     typealias CompletionErrorClosure = (error: Error?) -> Void
     
     func fetchUrl(url: String, downloadCompletion: (json: JSON) -> (), downloadFail: (Error) -> ()) {
-        let req = NSMutableURLRequest(URL: NSURL(string: url)!)
+        let req = NSMutableURLRequest(URL: NSURL(string: url)!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0)
+        //let req = NSMutableURLRequest(URL: NSURL(string: url)!)
         let task = NSURLSession.sharedSession().dataTaskWithRequest(req, completionHandler: { (data, response, error) -> Void in
             if let tempErr = error {
                 downloadFail(Error.HTTPRequestError(tempErr.localizedDescription))
@@ -30,6 +31,7 @@ class Downloader {
             let tempResponse = response as! NSHTTPURLResponse
             let tempCode = tempResponse.statusCode
             if tempCode != 200 {
+                print(tempCode)
                 downloadFail(Error.HTTPRequestError(String(tempCode)))
                 return
             }
@@ -53,7 +55,7 @@ class Downloader {
                 dispatch_group_leave(dispatchGroup)
             })
         }
-        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), { [unowned self] in
+        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), {
             if result != nil {
                 completionHandle(error: result)
                 return
@@ -73,7 +75,6 @@ class Downloader {
             } else {
                 result.append(rawJsonArr[1])
             }
-            // fix for different hours probably?
             for i in 0..<tempJSON["cnt"].intValue/8 {
                 result.append(tempJSON["list"][6+i*8])
             }
@@ -94,16 +95,16 @@ class Downloader {
             
             if day is OneDayWeatherExtended {
                 let today = OneDayWeatherExtended()
-                today.dataArray.append(dataCell(dblValue: json["clouds"]["all"].double, attributeID: "clouds", "%"))
-                today.dataArray.append(dataCell(dblValue: json["main"]["pressure"].double, attributeID: "pressure", "hPa"))
-                today.dataArray.append(dataCell(dblValue: json["main"]["humidity"].double, attributeID: "humidity", "%"))
-                today.dataArray.append(dataCell(dblValue: json["wind"]["speed"].double, attributeID: "speed", "m/s"))
-                today.dataArray.append(dataCell(dblValue: json["wind"]["deg"].double, attributeID: "degrees", ""))
-                today.dataArray.append(dataCell(intValue: json["sys"]["sunrise"].int as UnixTime?, attributeID: "sunrise", ""))
-                today.dataArray.append(dataCell(intValue: json["sys"]["sunset"].int as UnixTime?, attributeID: "sunset", ""))
-                today.dataArray.append(dataCell(dblValue: json["rain"]["3h"].double, attributeID: "rain", "mm"))
-                today.dataArray.append(dataCell(dblValue: json["snow"]["3h"].double, attributeID: "snow", "mm"))
-                today.dataArray = today.dataArray.filter { $0!.doubleValue != nil || $0!.intValue != nil }.map { $0 }
+                today.dataArray.append(dataCell(json: json["clouds"]["all"], attributeID: "clouds", "%", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["main"]["pressure"], attributeID: "pressure", "hPa", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["main"]["humidity"], attributeID: "humidity", "%", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["wind"]["speed"], attributeID: "speed", "m/s", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["wind"]["deg"], attributeID: "degrees", "", stringFunc: json.myDegrees))
+                today.dataArray.append(dataCell(json: (json["sys"]["sunrise"]), attributeID: "sunrise", "", stringFunc: json.myTime))
+                today.dataArray.append(dataCell(json: json["sys"]["sunset"], attributeID: "sunset", "", stringFunc: json.myTime))
+                today.dataArray.append(dataCell(json: json["rain"]["3h"], attributeID: "rain", "mm", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["snow"]["3h"], attributeID: "snow", "mm", stringFunc: json.myString))
+                today.dataArray = today.dataArray.filter { $0?.dblValue != nil }.map { $0 }
                 day = OneDayWeatherExtended(arr: today.dataArray, baseDay: tempDay)
             } else {
                 day = tempDay
@@ -124,5 +125,26 @@ class Downloader {
             if result != nil { break }
         }
         completionHandle(error: result)
+    }
+}
+
+extension JSON {
+    public func myDegrees(dbl: AnyObject) -> String {
+        let temp = dbl as! Degrees
+        return temp.toCompassPoint
+    }
+
+    public func myTime(dbl: AnyObject) -> String {
+        let time = dbl as! UnixTime
+        return time.toHour
+    }
+    
+    public func myString(dbl: AnyObject) -> String {
+        let formatter = NSNumberFormatter()
+        formatter.minimumIntegerDigits = 1
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 1
+        let tempDbl = dbl as! Double
+        return formatter.stringFromNumber(tempDbl)!
     }
 }
