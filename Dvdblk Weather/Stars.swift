@@ -10,11 +10,12 @@ import UIKit
 
 class Stars: UIView {
 
-    var cloudiness: Double!
+    private var cloudiness: Double!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = UIColor.clearColor()
+        self.alpha = 0// for later anim
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -24,7 +25,6 @@ class Stars: UIView {
     convenience init(frame: CGRect, cloudiness: Double) {
         self.init(frame: frame)
         self.cloudiness = cloudiness
-        //self.alpha = 0 for later anim
     }
     
     
@@ -33,34 +33,36 @@ class Stars: UIView {
     // An empty implementation adversely affects performance during animation.
     override func drawRect(rect: CGRect) {
         
-        func rand(max: UInt32 = 3) -> Int {
-            return Int(arc4random_uniform(max) + 1)
+        func rand(max: Int = 3) -> Int {
+            return Int(arc4random_uniform(UInt32(max)) + 1)
         }
         
-        /*var coordArray: [(x, y, radius, alpha)] = []
-        let xCount = 60 + rand(20) - rand(20)
-        let yCount = 10 + rand(5) - rand(5)
-        let xDiff = self.frame.size.width / xCount
-        for x in xCount {
-            var tempX =  rand(
-            coordArray.append((rand(x+)
-        }*/
-        
-        
-        var coordArray: [(x, y, used)] = []
+        var coordArray = [(x:CGFloat, y:CGFloat, used: Bool)]()
         let tempW = Int(self.frame.width)
-        let tempH = Int(self.frame.height/3.5)
+        let tempH = Int(self.frame.height/3)
     
         for x in 1..<tempW {
-            for y in 20..<tempH {
-                coordArray[x][y] = (x, y, false)
+            for y in 15..<tempH+rand(25) {
+                coordArray.append((CGFloat(x), CGFloat(y), false))
             }
+        }        
+        
+        for _ in 0..<150+rand(10) {
+            var element = coordArray[rand(coordArray.count)-1]
+            if element.used == true {
+                continue
+            }
+            element.used = true
+            let point = CGPoint(x: element.x, y: element.y)
+            let radius: CGFloat = CGFloat(rand(6)) * 0.2 + 0.4
+            let alpha: CGFloat = CGFloat(rand(25)) / 100.0 + 0.70
+            // - point.y/CGFloat(tempH+25)/800
+            let circle = UIBezierPath(ovalInRect: CGRect(origin: point, size: CGSize(width: radius, height: radius)))
+            UIColor(red: 255, green: 255, blue: 255, alpha: alpha).setFill()
+            circle.fill()
         }
         
-        let point = CGPoint(x: 80, y: 80)
-        let circle = UIBezierPath(ovalInRect: CGRect(origin: point, size: CGSize(width: 50.0, height: 50.0)))
-        UIColor.whiteColor().setFill()
-        circle.fill()
+        
     }
 
 

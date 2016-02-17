@@ -251,9 +251,9 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3vj-Bw-gce">
-                                            <rect key="frame" x="546" y="11" width="44" height="22"/>
+                                            <rect key="frame" x="538" y="11" width="44" height="22"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="TW4-li-Sr2">
@@ -267,7 +267,7 @@
                                         <constraint firstItem="Q1U-ro-jAS" firstAttribute="leading" secondItem="TW4-li-Sr2" secondAttribute="trailing" constant="12" id="LMA-T8-Sa2"/>
                                         <constraint firstItem="TW4-li-Sr2" firstAttribute="top" secondItem="Hho-vJ-H8F" secondAttribute="topMargin" constant="-6" id="VxM-YK-FWu"/>
                                         <constraint firstItem="3vj-Bw-gce" firstAttribute="baseline" secondItem="Q1U-ro-jAS" secondAttribute="baseline" id="joy-dR-n2z"/>
-                                        <constraint firstAttribute="trailing" secondItem="3vj-Bw-gce" secondAttribute="trailing" constant="10" id="qRC-jj-mQs"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="3vj-Bw-gce" secondAttribute="trailing" constant="10" id="qRC-jj-mQs"/>
                                         <constraint firstItem="Q1U-ro-jAS" firstAttribute="centerY" secondItem="TW4-li-Sr2" secondAttribute="centerY" id="sKE-Ki-omt"/>
                                         <constraint firstItem="TW4-li-Sr2" firstAttribute="leading" secondItem="Hho-vJ-H8F" secondAttribute="leadingMargin" constant="10" id="tKK-vU-wai"/>
                                     </constraints>
