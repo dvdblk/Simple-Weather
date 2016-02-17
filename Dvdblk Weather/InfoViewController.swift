@@ -69,8 +69,3 @@ extension InfoViewController: UIScrollViewDelegate {
         pageControl.currentPage = Int(scrollView.contentOffset.x / scrollView.frame.size.width)
     }
 }
-
-extension UIPageControl {
-    public override func tintColorDidChange() {
-    }
-}

@@ -40,10 +40,6 @@ struct MyColor {
         return UIColor(hue: hue, saturation: saturation - (0.17 * cloudiness), brightness: brightness - (0.2 * cloudiness), alpha: 1)
     }
     
-    func nightClouds(cloudiness: CGFloat) -> UIColor {
-        return HSBcolor()
-    }
-    
 }
 
 
@@ -65,24 +61,31 @@ class FullViewController: UIViewController {
     var refreshControl: UIRefreshControl!
     var color = MyColor()
     let gradientLayer = CAGradientLayer()
+    var bgrnd: Stars!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
-        UILabel.appearance().font = UIFont(name: "Helvetica", size: 17)
+        
+        UILabel.appearance().font = UIFont(name: "CaviarDreams", size: 17)
+
         view.backgroundColor = color.HSBcolor()
         view.layer.insertSublayer(gradientLayer, atIndex: 0)
         gradientLayer.frame = view.bounds
-
+        bgrnd = Stars(frame: CGRectMake(0,0,view.frame.size.width, view.frame.size.height))
+        
+        
         todayVC = storyboard?.instantiateViewControllerWithIdentifier("Today") as! TodayViewController
         todayVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
         var tempFrame = todayVC.view.frame
         tempFrame.origin.x = tempFrame.width
         addChildViewController(todayVC)
-        scrollView!.addSubview(todayVC.view)
+        scrollView.addSubview(todayVC.view)
         todayVC.didMoveToParentViewController(self)
         todayVC.view.alpha = 0
         infoVC.view.alpha = 0
+        
+        view.insertSubview(bgrnd, belowSubview: scrollView)
         
         
         scrollView.delegate = self
@@ -131,8 +134,11 @@ class FullViewController: UIViewController {
     }
     
     func updateUI() {
+        //self.todayVC.view.alpha = 0
+        //self.infoVC.view.alpha = 0
         todayVC.updateUI()
         infoVC.updateUI()
+        bgrnd.setNeedsDisplay()
         UIView.animateWithDuration(0.5, animations: { self.daytime.set() }, completion: { finish in
             UIView.animateWithDuration(1.5, animations: {
                 self.todayVC.view.alpha = 1
@@ -164,11 +170,11 @@ class FullViewController: UIViewController {
     }
     
     func setBackgroundColor() {
-        let cloudiness = CGFloat((WeatherData.sharedInstance.today.cell(forAttribute: "clouds")?.dblValue)!) / 100
+        let cloudiness = CGFloat((WeatherData.sharedInstance.today.cell(forAttribute: "cloudiness")?.dblValue)!) / 100
         if daytime == .Day {
             self.view.backgroundColor = color.dayClouds(cloudiness)
         } else {
-            self.view.backgroundColor = color.nightClouds(cloudiness)
+            self.view.backgroundColor = color.HSBcolor()
         }
     }
 
@@ -180,6 +186,7 @@ extension FullViewController: UIScrollViewDelegate {
         if (scrollView.contentOffset.y > 0) {
             scrollView.contentOffset = CGPointMake(0, 0)
         }
+        //bgrnd.alpha += scrollView.contentOffset.y/200
     }
 }
 

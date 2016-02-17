@@ -42,7 +42,7 @@ class CurrentViewController: UITableViewController {
             labelText += " \(unit)"
         }
         //translation
-        cell.attributeLabel.text = dataIdentifier
+        cell.attributeLabel.text = dataIdentifier.capitalizedString
         cell.valueLabel.text = labelText
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), {
             if let myImage = UIImage(named: dataIdentifier) {

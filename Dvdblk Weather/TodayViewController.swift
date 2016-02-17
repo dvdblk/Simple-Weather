@@ -13,9 +13,14 @@ class TodayViewController: UIViewController {
     @IBOutlet weak var weatherImage: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var statusLabel: UILabel!
-        
+    @IBOutlet weak var cityLabel: UILabel!
+    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        temperatureLabel.font = UIFont(name: "Caviar Dreams", size: 30)
+        statusLabel.font = UIFont(name: "Caviar Dreams", size: 25)
+        cityLabel.font = UIFont(name: "Caviar Dreams", size: 25)
     }
 
     override func didReceiveMemoryWarning() {
@@ -25,7 +30,7 @@ class TodayViewController: UIViewController {
     
     func updateUI() {
         temperatureLabel.text = WeatherData.sharedInstance.today.temperature?.celsius
-        statusLabel.text = WeatherData.sharedInstance.today.description
+        statusLabel.text = WeatherData.sharedInstance.today.description!.capitalizedString
         
         if let myImage = UIImage(named:"\(WeatherData.sharedInstance.today.icon!)") {
             let tintableImage = myImage.imageWithRenderingMode(.AlwaysTemplate)

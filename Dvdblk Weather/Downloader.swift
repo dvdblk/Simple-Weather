@@ -9,7 +9,7 @@
 import Foundation
 
 class Downloader {
-    //let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=44db6a862fba0b067b1930da0d769e98", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=44db6a862fba0b067b1930da0d769e98"] default API key
+    //44db6a862fba0b067b1930da0d769e98 == default API key
     //let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]
     let urlList = ["http://www.dvdblk.com/devel/weather.html", "http://www.dvdblk.com/devel/forecast.html"]
     
@@ -95,15 +95,15 @@ class Downloader {
             
             if day is OneDayWeatherExtended {
                 let today = OneDayWeatherExtended()
-                today.dataArray.append(dataCell(json: json["clouds"]["all"], attributeID: "clouds", "%", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["clouds"]["all"], attributeID: "cloudiness", "%", stringFunc: json.myString))
                 today.dataArray.append(dataCell(json: json["main"]["pressure"], attributeID: "pressure", "hPa", stringFunc: json.myString))
                 today.dataArray.append(dataCell(json: json["main"]["humidity"], attributeID: "humidity", "%", stringFunc: json.myString))
-                today.dataArray.append(dataCell(json: json["wind"]["speed"], attributeID: "speed", "m/s", stringFunc: json.myString))
-                today.dataArray.append(dataCell(json: json["wind"]["deg"], attributeID: "degrees", "", stringFunc: json.myDegrees))
+                today.dataArray.append(dataCell(json: json["wind"]["speed"], attributeID: "wind speed", "m/s", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["wind"]["deg"], attributeID: "wind direction", "", stringFunc: json.myDegrees))
                 today.dataArray.append(dataCell(json: (json["sys"]["sunrise"]), attributeID: "sunrise", "", stringFunc: json.myTime))
                 today.dataArray.append(dataCell(json: json["sys"]["sunset"], attributeID: "sunset", "", stringFunc: json.myTime))
-                today.dataArray.append(dataCell(json: json["rain"]["3h"], attributeID: "rain", "mm", stringFunc: json.myString))
-                today.dataArray.append(dataCell(json: json["snow"]["3h"], attributeID: "snow", "mm", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["rain"]["3h"], attributeID: "rain (3h)", "mm", stringFunc: json.myString))
+                today.dataArray.append(dataCell(json: json["snow"]["3h"], attributeID: "snow (3h)", "mm", stringFunc: json.myString))
                 today.dataArray = today.dataArray.filter { $0?.dblValue != nil }.map { $0 }
                 day = OneDayWeatherExtended(arr: today.dataArray, baseDay: tempDay)
             } else {
