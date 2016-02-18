@@ -8,6 +8,10 @@
 
 import Foundation
 
+func delay(delay: Double, closure: () -> ()) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))), dispatch_get_main_queue(), { closure() })
+}
+
 class Downloader {
     //44db6a862fba0b067b1930da0d769e98 == default API key
     //let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]

@@ -96,17 +96,19 @@ class FullViewController: UIViewController {
                 self.refresh()
             })
             }, withAnimator: refreshAnimator)
-        
-        //prepareRefresh()
         scrollView.delegate = self
-        //scrollView.insertSubview(refreshControl, atIndex: 0)
-        //refresh()
         
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
 
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        delay(0.5) {
+            self.scrollView.startPullToRefresh()
+        }
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -117,7 +119,6 @@ class FullViewController: UIViewController {
     }
     
     func refresh() {
-        print("123")
         downloader.getData({ err in
             if let error = err {
                 var message: String = "No errors!"
@@ -132,6 +133,7 @@ class FullViewController: UIViewController {
                 self.presentViewController(alertControl, animated: true, completion: nil)
                 alertControl.view.tintColor = UIColor.blackColor()
                 //self.refreshControl.endRefreshing()
+                self.scrollView.stopPullToRefresh()
                 return
             }
             print("succesful download")
@@ -145,6 +147,7 @@ class FullViewController: UIViewController {
     func updateUI() {
         self.todayVC.view.alpha = 0
         self.infoVC.view.alpha = 0
+        self.scrollView.pullToRefreshView?.alpha = 0
         todayVC.updateUI()
         infoVC.updateUI()
         UIView.animateWithDuration(0.5 , animations: {
@@ -153,6 +156,8 @@ class FullViewController: UIViewController {
             UIView.animateWithDuration(1, animations: {
                 self.todayVC.view.alpha = 1
                 self.infoVC.view.alpha = 1
+                }, completion: { finish in
+                    self.scrollView.pullToRefreshView?.alpha = 1
             })
         })
         

@@ -71,11 +71,11 @@ enum DayCycle {
         //if (now >= sunr) && (now < suns) {
         //    self = .Day
         //} else {
-        if self == .Night {
-            self = .Day
-        } else {
+        //if self == .Night {
+        //    self = .Day
+        //} else {
             self = .Night
-        }
+        //}
         //}
     }
 }

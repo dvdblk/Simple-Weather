@@ -24,11 +24,15 @@
 import UIKit
 import QuartzCore
 
+
+private let pullToRefreshTag = 324
+private let pullToRefreshDefaultHeight: CGFloat = 80
 private var KVOContext = "RefresherKVOContext"
 private let ContentOffsetKeyPath = "contentOffset"
 
 public enum PullToRefreshViewState {
 
+    case Default
     case Loading
     case PullToRefresh
     case ReleaseToRefresh
@@ -43,6 +47,8 @@ public protocol PullToRefreshViewDelegate {
 }
 
 public class PullToRefreshView: UIView {
+    
+    var pullState = PullToRefreshViewState.Default
     
     private var scrollViewBouncesDefaultValue: Bool = false
     private var scrollViewInsetsDefaultValue: UIEdgeInsets = UIEdgeInsetsZero
@@ -67,15 +73,6 @@ public class PullToRefreshView: UIView {
     
     //MARK: Object lifecycle methods
 
-    /*convenience init(action :(() -> ()), frame: CGRect) {
-        var bounds = frame
-        bounds.origin.y = 0
-        let animator = Animator(frame: bounds)
-        self.init(frame: frame, animator: animator)
-        self.action = action;
-        addSubview(animator.animatorView)
-    }*/
-
     convenience init(action :(() -> ()), frame: CGRect, animator: PullToRefreshViewDelegate, subview: UIView) {
         self.init(frame: frame, animator: animator)
         self.action = action;
@@ -97,7 +94,6 @@ public class PullToRefreshView: UIView {
     public required init?(coder aDecoder: NSCoder) {
         self.animator = RefreshAnimator(frame: CGRectZero)
         super.init(coder: aDecoder)
-        // Currently it is not supported to load view from nib
     }
     
     deinit {
@@ -177,5 +173,40 @@ public class PullToRefreshView: UIView {
         }) { finished in
             self.animator.pullToRefresh(self, progressDidChange: 0)
         }
+    }
+}
+
+
+extension UIScrollView {
+    
+    public var pullToRefreshView: PullToRefreshView? {
+        get {
+            let pullToRefreshView = viewWithTag(pullToRefreshTag)
+            return pullToRefreshView as? PullToRefreshView
+        }
+    }
+    
+    public func addPullToRefreshWithAction(action:(() -> ()), withAnimator animator: PullToRefreshViewDelegate, withSubview subview: UIView) {
+        let height = subview.frame.height
+        let pullToRefreshView = PullToRefreshView(action: action, frame: CGRectMake(0, -height, self.frame.size.width, height), animator: animator, subview: subview)
+        pullToRefreshView.tag = pullToRefreshTag
+        addSubview(pullToRefreshView)
+    }
+    
+    public func addPullToRefreshWithAction<T: UIView where T: PullToRefreshViewDelegate>(action:(() -> ()), withAnimator animator: T) {
+        let height = animator.frame.height
+        let pullToRefreshView = PullToRefreshView(action: action, frame: CGRectMake(0, -height, self.frame.size.width, height), animator: animator, subview: animator)
+        pullToRefreshView.tag = pullToRefreshTag
+        addSubview(pullToRefreshView)
+    }
+    
+    // Manually start pull to refresh
+    public func startPullToRefresh() {
+        pullToRefreshView?.loading = true
+    }
+    
+    // Manually stop pull to refresh
+    public func stopPullToRefresh() {
+        pullToRefreshView?.loading = false
     }
 }
