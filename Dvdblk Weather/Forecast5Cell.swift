@@ -17,7 +17,6 @@ class Forecast5Cell: UITableViewCell {
         super.awakeFromNib()
         dayLabel.text = "Monday"
         self.layoutMargins = UIEdgeInsetsZero
-        
     }
 
     override func setSelected(selected: Bool, animated: Bool) {

@@ -23,6 +23,7 @@ class InfoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        scrollView.setNeedsLayout()
         let scrollH = scrollView.frame.size.height
         scrollView.layoutIfNeeded()
         let scrollW = 2 * scrollView.bounds.size.width

@@ -18,9 +18,10 @@ class TodayViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        temperatureLabel.font = UIFont(name: "Caviar Dreams", size: 30)
-        statusLabel.font = UIFont(name: "Caviar Dreams", size: 25)
-        cityLabel.font = UIFont(name: "Caviar Dreams", size: 25)
+        let myFont = { UIFont(name: "Caviar Dreams", size: $0) }
+        temperatureLabel.font = myFont(30)
+        statusLabel.font = myFont(25)
+        cityLabel.font = myFont(25)
     }
 
     override func didReceiveMemoryWarning() {

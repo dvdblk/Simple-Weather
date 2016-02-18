@@ -15,7 +15,6 @@ class CurrentCell: UITableViewCell {
     @IBOutlet weak var attributeImageView: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
-        
     }
 
     override func setSelected(selected: Bool, animated: Bool) {

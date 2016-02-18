@@ -8,41 +8,6 @@
 
 import UIKit
 
-struct MyColor {
-    var hue: CGFloat
-    var saturation: CGFloat
-    var brightness: CGFloat
-    var alpha: CGFloat
-    
-    init() {
-        self.hue = 210/360
-        self.saturation = 0.47
-        self.brightness = 0.90
-        self.alpha = 1
-    }
-    
-    mutating func setColors(arr: [CGFloat]) {
-        self.hue = arr[0]
-        self.saturation = arr[1]
-        self.brightness = arr[2]
-        self.alpha = arr[3]
-    }
-    
-    func HSBcolor(arr: [CGFloat]) -> UIColor {
-        return UIColor(hue: arr[0], saturation: arr[1], brightness: arr[2], alpha: arr[3])
-    }
-    
-    func HSBcolor() -> UIColor {
-        return HSBcolor([hue, saturation, brightness, alpha])
-    }
-    
-    func dayClouds(cloudiness: CGFloat) -> UIColor {
-        return UIColor(hue: hue, saturation: saturation - (0.17 * cloudiness), brightness: brightness - (0.2 * cloudiness), alpha: 1)
-    }
-    
-}
-
-
 class FullViewController: UIViewController {
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -134,15 +99,12 @@ class FullViewController: UIViewController {
                 alertControl.addAction(UIAlertAction(title: "Dismiss", style: .Default, handler: nil))
                 self.presentViewController(alertControl, animated: true, completion: nil)
                 alertControl.view.tintColor = UIColor.blackColor()
-                //self.refreshControl.endRefreshing()
                 self.scrollView.stopPullToRefresh()
                 return
             }
             print("succesful download")
             NSNotificationCenter.defaultCenter().postNotificationName("Weather", object: nil)
-            //self.refreshControl.endRefreshing()
             self.scrollView.stopPullToRefresh()
-
         })
     }
     
@@ -198,31 +160,6 @@ class FullViewController: UIViewController {
             self.view.backgroundColor = color.HSBcolor()
         }
     }
-    
-    var iconsOverlap = false
-    var refreshAnimating = false
-    
-    func prepareRefresh() {
-        refreshControl = UIRefreshControl()
-        refreshControl.bounds.size.height = 40
-        refreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
-        refreshView = UIView(frame: refreshControl.bounds)
-        refreshView.backgroundColor = UIColor.clearColor()
-        refreshCloud = UIImageView(image: UIImage(named: "refresh1"))
-        refreshSpinner = UIImageView(image: UIImage(named: "refresh2"))
-        
-        refreshView.addSubview(refreshCloud)
-        refreshView.addSubview(refreshSpinner)
-        refreshView.clipsToBounds = true
-        refreshControl.tintColor = UIColor.clearColor()
-        refreshControl.addSubview(refreshView)
-        iconsOverlap = false
-        refreshAnimating = false
-    }
-
-    
-    
-
 }
 
 extension FullViewController: UIScrollViewDelegate {
@@ -230,68 +167,7 @@ extension FullViewController: UIScrollViewDelegate {
         if (scrollView.contentOffset.y > 0) {
             scrollView.contentOffset = CGPointMake(0, 0)
         }
-        
-        /*var refresherSize = refreshControl.bounds
-        var pullDistance = max(0.0, -self.refreshControl.frame.origin.y)
-        var midX = scrollView.frame.size.width / 2.0
-        var refreshCloudW = refreshCloud.bounds.size.width
-        var refreshCloudH = refreshCloud.bounds.size.height
-        var refreshSpinnerW = refreshSpinner.bounds.size.width
-        var refreshSpinnerH = refreshSpinner.bounds.size.height
-        
-        var pullRate = min(max(pullDistance, 0.0), 100.0) / 100.0
-        
-        var cloudY = pullDistance/2.0 - refreshCloudH/2.0
-        var spinnerY = pullDistance/2.0 - refreshSpinnerH/2.0
-        
-        var cloudX = (midX + refreshCloudW/2.0) - (refreshCloudW * pullRate)
-        var spinnerX = (midX - refreshSpinnerW/2.0) + (refreshSpinnerW * pullRate)
-        if (fabs(Float(cloudX-spinnerX)) < 1.0) {
-            iconsOverlap = true
-        }
-        
-        if (iconsOverlap || refreshControl.refreshing) {
-            cloudX = midX - refreshCloudW/2.0
-            spinnerX = midX - refreshSpinnerW/2.0
-        }
-        
-        var cloudFrame = refreshCloud.frame
-        cloudFrame.origin.x = cloudX
-        cloudFrame.origin.y = cloudY
-        
-        var spinnerFrame = refreshSpinner.frame
-        spinnerFrame.origin.x = spinnerX
-        spinnerFrame.origin.y = spinnerY
-        
-        refreshCloud.frame =  cloudFrame
-        refreshSpinner.frame = spinnerFrame
-        
-        refresherSize.size.height = pullDistance
-        refreshView.frame = refresherSize
-        
-        if (refreshControl.refreshing && refreshAnimating) {
-            animateRefreshView()
-        }*/
-    }
-    
-    func animateRefreshView() {
-        refreshAnimating = true
-        UIView.animateWithDuration(0.3, delay: 0, options: .CurveLinear, animations: {
-                self.refreshSpinner.transform = CGAffineTransformRotate(self.refreshSpinner.transform, CGFloat(M_PI_2))
-            
-            }, completion: { finish in
-                if (self.refreshControl.refreshing) {
-                    self.animateRefreshView()
-                } else {
-                    self.resetAnimation()
-                }
-                
-        })
-    }
-    
-    func resetAnimation() {
-        refreshAnimating = false
-        iconsOverlap = false
+
     }
 }
 

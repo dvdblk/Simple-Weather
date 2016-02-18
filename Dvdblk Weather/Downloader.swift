@@ -26,7 +26,6 @@ class Downloader {
     
     func fetchUrl(url: String, downloadCompletion: (json: JSON) -> (), downloadFail: (Error) -> ()) {
         let req = NSMutableURLRequest(URL: NSURL(string: url)!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0)
-        //let req = NSMutableURLRequest(URL: NSURL(string: url)!)
         let task = NSURLSession.sharedSession().dataTaskWithRequest(req, completionHandler: { (data, response, error) -> Void in
             if let tempErr = error {
                 downloadFail(Error.HTTPRequestError(tempErr.localizedDescription))
@@ -45,7 +44,6 @@ class Downloader {
     }
     
     func getData(completionHandle: CompletionErrorClosure) {
-        // get data and wait for both finished -> Parser -> WeatherData -> NSNotification in didSet
         var completedJSONData: [JSON] = []
         let dispatchGroup = dispatch_group_create()
         var result: Error?

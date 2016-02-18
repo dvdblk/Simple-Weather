@@ -136,10 +136,10 @@
 			isa = PBXGroup;
 			children = (
 				89A8AE1A1C64F5770092CFCD /* AppDelegate.swift */,
-				89A8AE261C64F5780092CFCD /* Info.plist */,
 				89163B7F1C74E1F700BBA1D8 /* PullToRefreshView.swift */,
 				89E44E9D1C7637DF00241A80 /* RefreshAnimator.swift */,
 				893C1EBC1C6BAFFF00C7C040 /* SwiftyJSON.swift */,
+				89A8AE261C64F5780092CFCD /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
