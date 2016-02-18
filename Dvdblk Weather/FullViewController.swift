@@ -40,10 +40,6 @@ struct MyColor {
         return UIColor(hue: hue, saturation: saturation - (0.17 * cloudiness), brightness: brightness - (0.2 * cloudiness), alpha: 1)
     }
     
-    func nightClouds(cloudiness: CGFloat) -> UIColor {
-        return HSBcolor()
-    }
-    
 }
 
 
@@ -51,6 +47,14 @@ class FullViewController: UIViewController {
     
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var backgroundImage: UIImageView!
+    
+    var todayVC: TodayViewController!
+    var infoVC: InfoViewController!
+    var refreshControl: UIRefreshControl!
+    var refreshView: UIView!
+    var refreshCloud: UIImageView!
+    var refreshSpinner: UIImageView!
+    
     var daytime = DayCycle() {
         didSet {
             if oldValue != daytime {
@@ -60,43 +64,51 @@ class FullViewController: UIViewController {
         }
     }
     let downloader = Downloader()
-    var todayVC: TodayViewController!
-    var infoVC: InfoViewController!
-    var refreshControl: UIRefreshControl!
     var color = MyColor()
+    var bgrnd: Stars?
     let gradientLayer = CAGradientLayer()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
-        UILabel.appearance().font = UIFont(name: "Helvetica", size: 17)
+        
+        UILabel.appearance().font = UIFont(name: "CaviarDreams", size: 17)
+
         view.backgroundColor = color.HSBcolor()
         view.layer.insertSublayer(gradientLayer, atIndex: 0)
         gradientLayer.frame = view.bounds
-
+        
         todayVC = storyboard?.instantiateViewControllerWithIdentifier("Today") as! TodayViewController
         todayVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
         var tempFrame = todayVC.view.frame
         tempFrame.origin.x = tempFrame.width
         addChildViewController(todayVC)
-        scrollView!.addSubview(todayVC.view)
+        scrollView.addSubview(todayVC.view)
         todayVC.didMoveToParentViewController(self)
         todayVC.view.alpha = 0
         infoVC.view.alpha = 0
         
-        
+        scrollView.layoutIfNeeded()
+        let refreshAnimator = RefreshAnimator(frame: CGRectMake(0, 0, scrollView.bounds.size.width, 80))
+        scrollView.addPullToRefreshWithAction({
+            NSOperationQueue().addOperationWithBlock({
+                self.refresh()
+            })
+            }, withAnimator: refreshAnimator)
         scrollView.delegate = self
-        
-        refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
-        scrollView.addSubview(self.refreshControl)
-        refresh()
         
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
 
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        delay(0.5) {
+            self.scrollView.startPullToRefresh()
+        }
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -120,23 +132,32 @@ class FullViewController: UIViewController {
                 alertControl.addAction(UIAlertAction(title: "Dismiss", style: .Default, handler: nil))
                 self.presentViewController(alertControl, animated: true, completion: nil)
                 alertControl.view.tintColor = UIColor.blackColor()
-                self.refreshControl.endRefreshing()
+                //self.refreshControl.endRefreshing()
+                self.scrollView.stopPullToRefresh()
                 return
             }
             print("succesful download")
             NSNotificationCenter.defaultCenter().postNotificationName("Weather", object: nil)
-            self.refreshControl.endRefreshing()
+            //self.refreshControl.endRefreshing()
+            self.scrollView.stopPullToRefresh()
 
         })
     }
     
     func updateUI() {
+        self.todayVC.view.alpha = 0
+        self.infoVC.view.alpha = 0
+        self.scrollView.pullToRefreshView?.alpha = 0
         todayVC.updateUI()
         infoVC.updateUI()
-        UIView.animateWithDuration(0.5, animations: { self.daytime.set() }, completion: { finish in
-            UIView.animateWithDuration(1.5, animations: {
+        UIView.animateWithDuration(0.5 , animations: {
+            self.daytime.set()
+            }, completion: { finish in
+            UIView.animateWithDuration(1, animations: {
                 self.todayVC.view.alpha = 1
                 self.infoVC.view.alpha = 1
+                }, completion: { finish in
+                    self.scrollView.pullToRefreshView?.alpha = 1
             })
         })
         
@@ -147,12 +168,16 @@ class FullViewController: UIViewController {
         var color1: CGColorRef!
         let color2 = UIColor.clearColor().CGColor
         if daytime == .Night {
+            bgrnd = Stars(frame: CGRectMake(0,0,view.frame.size.width, view.frame.size.height))
+            view.insertSubview(bgrnd!, belowSubview: scrollView)
+            self.bgrnd!.alpha = 1
             view.tintColor = UIColor.whiteColor()
             color.setColors([205/360,1,0.1,1])
             infoVC.bgColor.setColors([0,0,0.78,0.2])
             color1 = UIColor(hue: 205/360, saturation: 1, brightness: 0.17, alpha: 1).CGColor
             result = .LightContent
         } else {
+            bgrnd?.removeFromSuperview()
             view.tintColor = UIColor.blackColor()
             color = MyColor()
             infoVC.bgColor.setColors([0,0,0.90,0.4])
@@ -164,14 +189,37 @@ class FullViewController: UIViewController {
     }
     
     func setBackgroundColor() {
-        let cloudiness = CGFloat((WeatherData.sharedInstance.today.cell(forAttribute: "clouds")?.dblValue)!) / 100
+        let cloudiness = CGFloat((WeatherData.sharedInstance.today.cell(forAttribute: "cloudiness")?.dblValue)!) / 100
         if daytime == .Day {
             self.view.backgroundColor = color.dayClouds(cloudiness)
         } else {
-            self.view.backgroundColor = color.nightClouds(cloudiness)
+            self.view.backgroundColor = color.HSBcolor()
         }
     }
+    
+    var iconsOverlap = false
+    var refreshAnimating = false
+    
+    func prepareRefresh() {
+        refreshControl = UIRefreshControl()
+        refreshControl.bounds.size.height = 40
+        refreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
+        refreshView = UIView(frame: refreshControl.bounds)
+        refreshView.backgroundColor = UIColor.clearColor()
+        refreshCloud = UIImageView(image: UIImage(named: "refresh1"))
+        refreshSpinner = UIImageView(image: UIImage(named: "refresh2"))
+        
+        refreshView.addSubview(refreshCloud)
+        refreshView.addSubview(refreshSpinner)
+        refreshView.clipsToBounds = true
+        refreshControl.tintColor = UIColor.clearColor()
+        refreshControl.addSubview(refreshView)
+        iconsOverlap = false
+        refreshAnimating = false
+    }
 
+    
+    
 
 }
 
@@ -180,6 +228,68 @@ extension FullViewController: UIScrollViewDelegate {
         if (scrollView.contentOffset.y > 0) {
             scrollView.contentOffset = CGPointMake(0, 0)
         }
+        
+        /*var refresherSize = refreshControl.bounds
+        var pullDistance = max(0.0, -self.refreshControl.frame.origin.y)
+        var midX = scrollView.frame.size.width / 2.0
+        var refreshCloudW = refreshCloud.bounds.size.width
+        var refreshCloudH = refreshCloud.bounds.size.height
+        var refreshSpinnerW = refreshSpinner.bounds.size.width
+        var refreshSpinnerH = refreshSpinner.bounds.size.height
+        
+        var pullRate = min(max(pullDistance, 0.0), 100.0) / 100.0
+        
+        var cloudY = pullDistance/2.0 - refreshCloudH/2.0
+        var spinnerY = pullDistance/2.0 - refreshSpinnerH/2.0
+        
+        var cloudX = (midX + refreshCloudW/2.0) - (refreshCloudW * pullRate)
+        var spinnerX = (midX - refreshSpinnerW/2.0) + (refreshSpinnerW * pullRate)
+        if (fabs(Float(cloudX-spinnerX)) < 1.0) {
+            iconsOverlap = true
+        }
+        
+        if (iconsOverlap || refreshControl.refreshing) {
+            cloudX = midX - refreshCloudW/2.0
+            spinnerX = midX - refreshSpinnerW/2.0
+        }
+        
+        var cloudFrame = refreshCloud.frame
+        cloudFrame.origin.x = cloudX
+        cloudFrame.origin.y = cloudY
+        
+        var spinnerFrame = refreshSpinner.frame
+        spinnerFrame.origin.x = spinnerX
+        spinnerFrame.origin.y = spinnerY
+        
+        refreshCloud.frame =  cloudFrame
+        refreshSpinner.frame = spinnerFrame
+        
+        refresherSize.size.height = pullDistance
+        refreshView.frame = refresherSize
+        
+        if (refreshControl.refreshing && refreshAnimating) {
+            animateRefreshView()
+        }*/
+    }
+    
+    func animateRefreshView() {
+        refreshAnimating = true
+        UIView.animateWithDuration(0.3, delay: 0, options: .CurveLinear, animations: {
+                self.refreshSpinner.transform = CGAffineTransformRotate(self.refreshSpinner.transform, CGFloat(M_PI_2))
+            
+            }, completion: { finish in
+                if (self.refreshControl.refreshing) {
+                    self.animateRefreshView()
+                } else {
+                    self.resetAnimation()
+                }
+                
+        })
+    }
+    
+    func resetAnimation() {
+        refreshAnimating = false
+        iconsOverlap = false
     }
 }
 

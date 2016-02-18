@@ -23,6 +23,9 @@ class InfoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let scrollH = scrollView.frame.size.height
+        scrollView.layoutIfNeeded()
+        let scrollW = 2 * scrollView.bounds.size.width
         currentVC = storyboard?.instantiateViewControllerWithIdentifier("Current") as! CurrentViewController
         forecast5VC = storyboard?.instantiateViewControllerWithIdentifier("Forecast5") as! Forecast5ViewController
         currentVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
@@ -36,9 +39,7 @@ class InfoViewController: UIViewController {
         addChildViewController(currentVC)
         scrollView.addSubview(currentVC.view)
         currentVC.didMoveToParentViewController(self)
-        
-        let scrollW = 2 * scrollView.frame.size.width
-        let scrollH = scrollView.frame.size.height
+    
         scrollView.contentSize = CGSizeMake(scrollW, scrollH)
         scrollView.layer.cornerRadius = 10
         scrollView.delegate = self
@@ -67,10 +68,5 @@ class InfoViewController: UIViewController {
 extension InfoViewController: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
         pageControl.currentPage = Int(scrollView.contentOffset.x / scrollView.frame.size.width)
-    }
-}
-
-extension UIPageControl {
-    public override func tintColorDidChange() {
     }
 }

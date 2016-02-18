@@ -13,13 +13,22 @@ typealias UnixTime = Int
 typealias Degrees = Double
 
 
+extension NSNumberFormatter {
+    func customStringFromNumber(dbl: Double) -> String {
+        var result =  self.stringFromNumber(dbl)!
+        if result == "-0" { result = "0" }
+        result += " °C"
+        return result
+    }
+}
+
 extension Temperature {
     var celsius: String {
         let formatter = NSNumberFormatter()
         formatter.minimumIntegerDigits = 1
         formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = 1
-        return "\(formatter.stringFromNumber(round((self - 273.15)*2)/2)!) ℃"
+        return formatter.customStringFromNumber(round((self - 273.15)*2)/2)
     }
     var kelvin: Temperature { return self }
 }
@@ -27,6 +36,7 @@ extension Temperature {
 extension UnixTime {
     func formatType(form: String) -> NSDateFormatter {
         let dateFormatter = NSDateFormatter()
+        dateFormatter.locale = NSLocale(localeIdentifier: "en_US")
         dateFormatter.dateFormat = form
         return dateFormatter
     }
@@ -61,7 +71,11 @@ enum DayCycle {
         //if (now >= sunr) && (now < suns) {
         //    self = .Day
         //} else {
+        //if self == .Night {
+        //    self = .Day
+        //} else {
             self = .Night
+        //}
         //}
     }
 }
