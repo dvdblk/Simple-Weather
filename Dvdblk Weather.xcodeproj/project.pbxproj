@@ -13,7 +13,6 @@
 		8927AC3F1C666D0300A6931F /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8927AC3E1C666D0300A6931F /* InfoViewController.swift */; };
 		893C1EBD1C6BAFFF00C7C040 /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893C1EBC1C6BAFFF00C7C040 /* SwiftyJSON.swift */; };
 		894F9F971C73E19E004F1C80 /* Stars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 894F9F961C73E19E004F1C80 /* Stars.swift */; };
-		897798451C73726500BE2656 /* CaviarDreams.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 897798441C73706E00BE2656 /* CaviarDreams.ttf */; };
 		897798471C7372B600BE2656 /* CaviarDreams_Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 897798461C73729B00BE2656 /* CaviarDreams_Bold.ttf */; };
 		89A70EA01C6803E4008704B3 /* Forecast5Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A70E9F1C6803E4008704B3 /* Forecast5Cell.swift */; };
 		89A70EA21C6804EC008704B3 /* Forecast5ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A70EA11C6804EC008704B3 /* Forecast5ViewController.swift */; };
@@ -26,6 +25,7 @@
 		89BB28561C67B5F60008C5C1 /* CurrentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BB28551C67B5F60008C5C1 /* CurrentViewController.swift */; };
 		89D11AD81C6B430300AEDD9E /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D11AD71C6B430200AEDD9E /* Downloader.swift */; };
 		89E44E9E1C7637DF00241A80 /* RefreshAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89E44E9D1C7637DF00241A80 /* RefreshAnimator.swift */; };
+		89E44EA51C76439800241A80 /* CaviarDreams.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 89E44EA41C76439800241A80 /* CaviarDreams.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,7 +35,6 @@
 		8927AC3E1C666D0300A6931F /* InfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
 		893C1EBC1C6BAFFF00C7C040 /* SwiftyJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 		894F9F961C73E19E004F1C80 /* Stars.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stars.swift; sourceTree = "<group>"; };
-		897798441C73706E00BE2656 /* CaviarDreams.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CaviarDreams.ttf; sourceTree = "<group>"; };
 		897798461C73729B00BE2656 /* CaviarDreams_Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CaviarDreams_Bold.ttf; sourceTree = "<group>"; };
 		89A70E9F1C6803E4008704B3 /* Forecast5Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Forecast5Cell.swift; sourceTree = "<group>"; };
 		89A70EA11C6804EC008704B3 /* Forecast5ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Forecast5ViewController.swift; sourceTree = "<group>"; };
@@ -50,6 +49,7 @@
 		89BB28551C67B5F60008C5C1 /* CurrentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentViewController.swift; sourceTree = "<group>"; };
 		89D11AD71C6B430200AEDD9E /* Downloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
 		89E44E9D1C7637DF00241A80 /* RefreshAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshAnimator.swift; sourceTree = "<group>"; };
+		89E44EA41C76439800241A80 /* CaviarDreams.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CaviarDreams.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,14 +82,10 @@
 		89A8AE191C64F5770092CFCD /* Dvdblk Weather */ = {
 			isa = PBXGroup;
 			children = (
-				89A8AE1A1C64F5770092CFCD /* AppDelegate.swift */,
 				89A8AE1E1C64F5770092CFCD /* Main.storyboard */,
-				89BB284D1C67A33A0008C5C1 /* Main */,
-				89A8AE211C64F5770092CFCD /* Assets.xcassets */,
-				897798441C73706E00BE2656 /* CaviarDreams.ttf */,
-				897798461C73729B00BE2656 /* CaviarDreams_Bold.ttf */,
 				89A8AE231C64F5770092CFCD /* LaunchScreen.storyboard */,
-				89A8AE261C64F5780092CFCD /* Info.plist */,
+				89BB284D1C67A33A0008C5C1 /* Main */,
+				89E44EA71C76469800241A80 /* Resources */,
 			);
 			path = "Dvdblk Weather";
 			sourceTree = "<group>";
@@ -119,12 +115,10 @@
 			children = (
 				8909B7A01C68DCFD00369E30 /* WeatherData.swift */,
 				89D11AD71C6B430200AEDD9E /* Downloader.swift */,
-				893C1EBC1C6BAFFF00C7C040 /* SwiftyJSON.swift */,
 				89A8AE1C1C64F5770092CFCD /* FullViewController.swift */,
 				894F9F961C73E19E004F1C80 /* Stars.swift */,
-				89163B7F1C74E1F700BBA1D8 /* PullToRefreshView.swift */,
-				89E44E9D1C7637DF00241A80 /* RefreshAnimator.swift */,
 				89BB284E1C67A3520008C5C1 /* Content */,
+				89E44EA61C76461400241A80 /* Supporting Files */,
 			);
 			name = Main;
 			sourceTree = "<group>";
@@ -136,6 +130,28 @@
 				89BB284B1C67A30B0008C5C1 /* Scroll View */,
 			);
 			name = Content;
+			sourceTree = "<group>";
+		};
+		89E44EA61C76461400241A80 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				89A8AE1A1C64F5770092CFCD /* AppDelegate.swift */,
+				89A8AE261C64F5780092CFCD /* Info.plist */,
+				89163B7F1C74E1F700BBA1D8 /* PullToRefreshView.swift */,
+				89E44E9D1C7637DF00241A80 /* RefreshAnimator.swift */,
+				893C1EBC1C6BAFFF00C7C040 /* SwiftyJSON.swift */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		89E44EA71C76469800241A80 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				89A8AE211C64F5770092CFCD /* Assets.xcassets */,
+				89E44EA41C76439800241A80 /* CaviarDreams.ttf */,
+				897798461C73729B00BE2656 /* CaviarDreams_Bold.ttf */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -197,7 +213,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				897798471C7372B600BE2656 /* CaviarDreams_Bold.ttf in Resources */,
-				897798451C73726500BE2656 /* CaviarDreams.ttf in Resources */,
+				89E44EA51C76439800241A80 /* CaviarDreams.ttf in Resources */,
 				89A8AE251C64F5770092CFCD /* LaunchScreen.storyboard in Resources */,
 				89A8AE221C64F5770092CFCD /* Assets.xcassets in Resources */,
 				89A8AE201C64F5770092CFCD /* Main.storyboard in Resources */,

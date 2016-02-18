@@ -71,6 +71,8 @@ class FullViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let appDelegate: AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        appDelegate.fullVC = self
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateUI", name: "Weather", object: nil)
         
         UILabel.appearance().font = UIFont(name: "CaviarDreams", size: 17)
