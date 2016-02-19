@@ -8,6 +8,7 @@ Basic weather information app written purely in Swift for an organization in Brn
 - Displays current weather information in Brno
 - (four)five day forecast
 - Simple and clean day / night design with pull to refresh to get current stats
+- Autolayout was tested only on a physical iPhone 6S, should work on every iPhone though
 
 
 ## Visuals
