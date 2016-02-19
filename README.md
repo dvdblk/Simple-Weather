@@ -25,7 +25,7 @@ Stars are randomly generated every night cycle change.
   <img src="day.gif" alt="Day image"/>
 </p>
 
-Background color is affected by current cloudiness.
+Background color is affected by current cloudiness %.
 
 ## Content used
 
