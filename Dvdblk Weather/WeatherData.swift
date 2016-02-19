@@ -7,11 +7,11 @@
 //
 
 import Foundation
+import UIKit
 
 typealias Temperature = Double
 typealias UnixTime = Int
 typealias Degrees = Double
-
 
 extension NSNumberFormatter {
     func customStringFromNumber(dbl: Double) -> String {
@@ -58,25 +58,56 @@ extension Degrees {
     }
 }
 
+struct MyColor {
+    var hue: CGFloat
+    var saturation: CGFloat
+    var brightness: CGFloat
+    var alpha: CGFloat
+    
+    init() {
+        self.hue = 210/360
+        self.saturation = 0.47
+        self.brightness = 0.90
+        self.alpha = 1
+    }
+    
+    mutating func setColors(arr: [CGFloat]) {
+        self.hue = arr[0]
+        self.saturation = arr[1]
+        self.brightness = arr[2]
+        self.alpha = arr[3]
+    }
+    
+    func HSBcolor(arr: [CGFloat]) -> UIColor {
+        return UIColor(hue: arr[0], saturation: arr[1], brightness: arr[2], alpha: arr[3])
+    }
+    
+    func HSBcolor() -> UIColor {
+        return HSBcolor([hue, saturation, brightness, alpha])
+    }
+    
+    func dayClouds(cloudiness: CGFloat) -> UIColor {
+        return UIColor(hue: hue, saturation: saturation - (0.17 * cloudiness), brightness: brightness - (0.2 * cloudiness), alpha: 1)
+    }
+    
+}
+
 enum DayCycle {
     case Day, Night
     init() {
         self = .Day
     }
-    
-    mutating func set() {
+    mutating func set(wthr: WeatherData) {
         let now = Int(NSDate().timeIntervalSince1970)
-        let sunr = Int((WeatherData.sharedInstance.today.cell(forAttribute: "sunrise")?.dblValue)!)
-        let suns = Int((WeatherData.sharedInstance.today.cell(forAttribute: "sunset")?.dblValue)!)
-        //if (now >= sunr) && (now < suns) {
-        //    self = .Day
-        //} else {
+        let sunr = Int((wthr.today.cell(forAttribute: "sunrise")?.dblValue)!)
+        let suns = Int((wthr.today.cell(forAttribute: "sunset")?.dblValue)!)
+        if (now >= sunr) && (now < suns) {
+        // for testing, changes night and day every refresh...
         //if self == .Night {
-        //    self = .Day
-        //} else {
+            self = .Day
+        } else {
             self = .Night
-        //}
-        //}
+        }
     }
 }
 
@@ -161,30 +192,28 @@ class OneDayWeatherExtended: OneDayWeather {
         super.init(id: baseDay?.id, temp: baseDay?.temperature, icon: baseDay?.icon, date: baseDay?.date, desc: baseDay?.description)
         self.dataArray = arr
     }
-    
-    
 }
 
-// singleton
 class WeatherData {
-    static let sharedInstance = WeatherData()
     var days: [OneDayWeather?] = []
     var today: OneDayWeatherExtended {
         return days[0] as! OneDayWeatherExtended
     }
+    
     var forecastDayCount: Int {
+        // returns the number of correctly parsed forecast days.. (for forecast5cells)
         let tempArr = days.filter { $0?.temperature != 0 }
         return tempArr.count - 1
     }
-    private init() {
+    
+    init() {
         days.append(OneDayWeatherExtended())
         for _ in 0..<5 {
             days.append(OneDayWeather())
         }
     }
+    
     subscript(index: Int) -> OneDayWeather {
         return days[index]!
     }
-    
-    
 }

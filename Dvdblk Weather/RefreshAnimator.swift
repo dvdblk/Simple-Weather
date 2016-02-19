@@ -16,29 +16,28 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
     var pointerImage: UIImageView!
     private var defaultTransform: CGAffineTransform!
     
+    func setImage(name: String, withSize size: CGFloat) -> UIImageView {
+        let image = UIImageView(image: UIImage(named: name)?.tintable)
+        image.frame = CGRectMake(0,0,size,size)
+        image.contentMode = UIViewContentMode.ScaleAspectFit
+        return image
+    }
+    var imageSize: CGFloat!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        let imageSize = (frame.size.height/1.5) * 0.9
-        cloudImage = UIImageView(image: UIImage(named: "refreshcloud"))
-        cloudImage.frame = CGRectMake(0,0,imageSize,imageSize)
-        cloudImage.contentMode = UIViewContentMode.ScaleAspectFit
-        cloudImage.image = cloudImage.image!.imageWithRenderingMode(.AlwaysTemplate)
-        pointerImage = UIImageView(image: UIImage(named: "pullpointer"))
-        pointerImage.frame = CGRectMake(0,0,imageSize*0.5, imageSize*0.5)
-        pointerImage.contentMode = UIViewContentMode.ScaleAspectFit
-        pointerImage.image = pointerImage.image!.imageWithRenderingMode(.AlwaysTemplate)
+        imageSize = (frame.size.height/1.5) * 0.9
+        cloudImage = setImage("refreshcloud", withSize: imageSize)
+        pointerImage = setImage("pullpointer", withSize: imageSize * 0.5)
         defaultTransform = pointerImage.transform
-        
-        self.addSubview(cloudImage)
-        self.addSubview(pointerImage)
         
         let myMidY = self.frame.midY + 15
         cloudImage.frame.origin.x = self.frame.midX - cloudImage.frame.size.width/2
         cloudImage.frame.origin.y = myMidY - cloudImage.frame.size.height/2
-        
         pointerImage.frame.origin = CGPoint(x: self.frame.midX - pointerImage.frame.size.width/2, y: myMidY-5)
         
-        
+        self.addSubview(cloudImage)
+        self.addSubview(pointerImage)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -60,7 +59,7 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
     
     func pullToRefreshAnimationDidEnd(view: PullToRefreshView) {
         pointerImage.layer.removeAllAnimations()
-        pointerImage.image = UIImage(named: "pullpointer")
+        pointerImage.image = UIImage(named: "pullpointer")?.tintable
         pointerImage.transform = defaultTransform
     }
     
@@ -68,7 +67,7 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
         
         let degrees = (180.0 * CGFloat(M_PI)) / 180
         let moveDownArrow = {
-            UIView.animateWithDuration(0.2, delay: 0.0, options: [.Repeat, .Autoreverse, .CurveEaseOut], animations: {
+            UIView.animateWithDuration(0.15, delay: 0.0, options: [.Repeat, .Autoreverse, .CurveEaseOut], animations: {
                 self.pointerImage.transform = CGAffineTransformTranslate(self.pointerImage.transform, 0, 4)
                 }, completion: nil)
         }
@@ -84,6 +83,9 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
                         }, completion:  { finish in
                             moveDownArrow()
                     })
+                } else if view.pullState == .Loading {
+                    view.pullState = .Default
+                    return
                 } else {
                     moveDownArrow()
                 }
@@ -92,15 +94,17 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
                     self.pointerImage.transform = CGAffineTransformMakeRotation(degrees)
                 })
             case .Default:
-                return
+                break
             }
             pointerImage.image = pointerImage.image!.imageWithRenderingMode(.AlwaysTemplate)
         }
         view.pullState = state
         
     }
-    
-    func pullToRefresh(view: PullToRefreshView, progressDidChange progress: CGFloat) {
-        
+}
+
+extension UIImage {
+    var tintable: UIImage {
+        return self.imageWithRenderingMode(.AlwaysTemplate)
     }
 }

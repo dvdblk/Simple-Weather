@@ -15,19 +15,19 @@ class InfoViewController: UIViewController {
     var currentVC: CurrentViewController!
     var forecast5VC: Forecast5ViewController!
     var fullVC: FullViewController!
-    var bgColor = MyColor() {
-        didSet {
-            setBackgroundColor()
-        }
-    }
+    var bgColor = MyColor()
+    var weather: WeatherData!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        scrollView.setNeedsLayout()
         let scrollH = scrollView.frame.size.height
         scrollView.layoutIfNeeded()
         let scrollW = 2 * scrollView.bounds.size.width
         currentVC = storyboard?.instantiateViewControllerWithIdentifier("Current") as! CurrentViewController
         forecast5VC = storyboard?.instantiateViewControllerWithIdentifier("Forecast5") as! Forecast5ViewController
+        currentVC.weather = weather
+        forecast5VC.weather = weather
         currentVC.view.frame = CGRectMake(0, 0, scrollView.frame.size.width, scrollView.frame.size.height)
         var tempFrame = currentVC.view.frame
         tempFrame.origin.x = tempFrame.width
@@ -39,7 +39,7 @@ class InfoViewController: UIViewController {
         addChildViewController(currentVC)
         scrollView.addSubview(currentVC.view)
         currentVC.didMoveToParentViewController(self)
-    
+        
         scrollView.contentSize = CGSizeMake(scrollW, scrollH)
         scrollView.layer.cornerRadius = 10
         scrollView.delegate = self
@@ -50,10 +50,10 @@ class InfoViewController: UIViewController {
 
     }
     
-    func updateUI() {
+    // called from fullVC updateUI() function
+    func updateData() {
         currentVC.tableView.reloadData()
         forecast5VC.tableView.reloadData()
-        setBackgroundColor()
     }
     
     func setBackgroundColor() {

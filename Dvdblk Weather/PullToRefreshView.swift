@@ -42,7 +42,6 @@ public protocol PullToRefreshViewDelegate {
     
     func pullToRefreshAnimationDidStart(view: PullToRefreshView)
     func pullToRefreshAnimationDidEnd(view: PullToRefreshView)
-    func pullToRefresh(view: PullToRefreshView, progressDidChange progress: CGFloat)
     func pullToRefresh(view: PullToRefreshView, stateDidChange state: PullToRefreshViewState)
 }
 
@@ -128,13 +127,11 @@ public class PullToRefreshView: UIView {
                             self.animator.pullToRefresh(self, stateDidChange: .Loading)
                         } else {
                             self.animator.pullToRefresh(self, stateDidChange: .ReleaseToRefresh)
-                            animator.pullToRefresh(self, progressDidChange: -offsetWithoutInsets / self.frame.size.height)
                         }
                     } else if (loading) {
                         self.animator.pullToRefresh(self, stateDidChange: .Loading)
                     } else if (offsetWithoutInsets < 0) {
                         self.animator.pullToRefresh(self, stateDidChange: .PullToRefresh)
-                        animator.pullToRefresh(self, progressDidChange: -offsetWithoutInsets / self.frame.size.height)
                     }
                     previousOffset = scrollView.contentOffset.y
                 }
@@ -170,9 +167,7 @@ public class PullToRefreshView: UIView {
         scrollView.bounces = self.scrollViewBouncesDefaultValue
         UIView.animateWithDuration(0.3, animations: {
             scrollView.contentInset = self.scrollViewInsetsDefaultValue
-        }) { finished in
-            self.animator.pullToRefresh(self, progressDidChange: 0)
-        }
+            }, completion: nil)
     }
 }
 
