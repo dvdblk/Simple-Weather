@@ -16,16 +16,17 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
     var pointerImage: UIImageView!
     private var defaultTransform: CGAffineTransform!
     
+    func setImage(name: String, withSize size: CGFloat) -> UIImageView {
+        let image = UIImageView(image: UIImage(named: name)?.tintable)
+        image.frame = CGRectMake(0,0,size,size)
+        image.contentMode = UIViewContentMode.ScaleAspectFit
+        return image
+    }
+    var imageSize: CGFloat!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        let imageSize = (frame.size.height/1.5) * 0.9
-        func setImage(name: String, withSize size: CGFloat) -> UIImageView {
-            let image = UIImageView(image: UIImage(named: name))
-            image.frame = CGRectMake(0,0,size,size)
-            image.contentMode = UIViewContentMode.ScaleAspectFit
-            image.image = image.image?.imageWithRenderingMode(.AlwaysTemplate)
-            return image
-        }
+        imageSize = (frame.size.height/1.5) * 0.9
         cloudImage = setImage("refreshcloud", withSize: imageSize)
         pointerImage = setImage("pullpointer", withSize: imageSize * 0.5)
         defaultTransform = pointerImage.transform
@@ -58,7 +59,7 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
     
     func pullToRefreshAnimationDidEnd(view: PullToRefreshView) {
         pointerImage.layer.removeAllAnimations()
-        pointerImage.image = UIImage(named: "pullpointer")
+        pointerImage.image = UIImage(named: "pullpointer")?.tintable
         pointerImage.transform = defaultTransform
     }
     
@@ -82,6 +83,9 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
                         }, completion:  { finish in
                             moveDownArrow()
                     })
+                } else if view.pullState == .Loading {
+                    view.pullState = .Default
+                    return
                 } else {
                     moveDownArrow()
                 }
@@ -90,11 +94,17 @@ class RefreshAnimator: UIView, PullToRefreshViewDelegate {
                     self.pointerImage.transform = CGAffineTransformMakeRotation(degrees)
                 })
             case .Default:
-                return
+                break
             }
             pointerImage.image = pointerImage.image!.imageWithRenderingMode(.AlwaysTemplate)
         }
         view.pullState = state
         
+    }
+}
+
+extension UIImage {
+    var tintable: UIImage {
+        return self.imageWithRenderingMode(.AlwaysTemplate)
     }
 }

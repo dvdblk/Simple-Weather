@@ -15,6 +15,7 @@ class TodayViewController: UIViewController {
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
     
+    var weather: WeatherData!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,17 +27,12 @@ class TodayViewController: UIViewController {
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
-    func updateUI() {
-        temperatureLabel.text = WeatherData.sharedInstance.today.temperature?.celsius
-        statusLabel.text = WeatherData.sharedInstance.today.description!.capitalizedString
-        
-        if let myImage = UIImage(named:"\(WeatherData.sharedInstance.today.icon!)") {
-            let tintableImage = myImage.imageWithRenderingMode(.AlwaysTemplate)
-            weatherImage.image = tintableImage
-        }
+    func updateData() {
+        temperatureLabel.text = weather.today.temperature?.celsius
+        statusLabel.text = weather.today.description!.capitalizedString
+        weatherImage.image = UIImage(named: weather.today.icon!)!.tintable
     }
 
 }

@@ -13,9 +13,11 @@ func delay(delay: Double, closure: () -> ()) {
 }
 
 class Downloader {
-    //44db6a862fba0b067b1930da0d769e98 == default API key
-    //let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]
-    let urlList = ["http://www.dvdblk.com/devel/weather.html", "http://www.dvdblk.com/devel/forecast.html"]
+    //44db6a862fba0b067b1930da0d769e98 == website default API key
+    // uncomment lower urlList to get old data stored on my website to "bypass" API Website unavailability...
+    // background / UI style is always night when the latter urls are in use because the day night cycle is calculated by comparing unix timestamps of sunrise / sunset and current epoch, however the sun timestamps correspond to the day they were uploaded to my website which brings us to the point why they'll always be less than the current epoch
+    let urlList = ["http://api.openweathermap.org/data/2.5/weather?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84", "http://api.openweathermap.org/data/2.5/forecast?id=3078610&appid=137c557bce8219f3a930f1bdb5eaab84"]
+    //let urlList = ["http://www.dvdblk.com/devel/weather.html", "http://www.dvdblk.com/devel/forecast.html"]
     
     enum Error: ErrorType {
         case HTTPRequestError(String)
@@ -25,6 +27,7 @@ class Downloader {
     typealias CompletionErrorClosure = (error: Error?) -> Void
     
     func fetchUrl(url: String, downloadCompletion: (json: JSON) -> (), downloadFail: (Error) -> ()) {
+        // request without cache...
         let req = NSMutableURLRequest(URL: NSURL(string: url)!, cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0)
         let task = NSURLSession.sharedSession().dataTaskWithRequest(req, completionHandler: { (data, response, error) -> Void in
             if let tempErr = error {
@@ -34,7 +37,6 @@ class Downloader {
             let tempResponse = response as! NSHTTPURLResponse
             let tempCode = tempResponse.statusCode
             if tempCode != 200 {
-                print(tempCode)
                 downloadFail(Error.HTTPRequestError(String(tempCode)))
                 return
             }
@@ -43,7 +45,8 @@ class Downloader {
         task.resume()
     }
     
-    func getData(completionHandle: CompletionErrorClosure) {
+    // downloads content of urls and calls completion handle without erorr argument if no errors occured on any URL downloads, otherwise calls completion handle with specified error case...
+    func getData(wthr: WeatherData, completionHandle: CompletionErrorClosure) {
         var completedJSONData: [JSON] = []
         let dispatchGroup = dispatch_group_create()
         var result: Error?
@@ -62,12 +65,14 @@ class Downloader {
                 completionHandle(error: result)
                 return
             }
-            self.handleData(completedJSONData, completionHandle: completionHandle)
+            self.handleData(wthr, completedJSONData, completionHandle: completionHandle)
         })
     }
     
-    
-    func handleData(rawJsonArr: [JSON], completionHandle: CompletionErrorClosure) {
+    // parse and save data to model, can throw api errors (if corrupted from website)
+    func handleData(wthr: WeatherData, _ rawJsonArr: [JSON], completionHandle: CompletionErrorClosure) {
+        
+        // determines which url was downloaded sooner, sets today url content as the first one, forecast as 2nd and splits the forecast json to multiple jsons
         func prepareForecastForCurrentHour() -> [JSON]? {
             var result: [JSON] = []
             var tempJSON = rawJsonArr[0]
@@ -118,18 +123,19 @@ class Downloader {
         }
         
         guard var tempJSArray = prepareForecastForCurrentHour() else {
-            completionHandle(error: Error.APIError("Weather Website Having Trouble..."))
+            completionHandle(error: Error.APIError("Weather website having some trouble."))
             return
         }
         var result: Error?
         for index in 0..<tempJSArray.count {
-            result = parseAndSave(tempJSArray[index], forDay: &WeatherData.sharedInstance.days[index])
+            result = parseAndSave(tempJSArray[index], forDay: &wthr.days[index])
             if result != nil { break }
         }
         completionHandle(error: result)
     }
 }
 
+// for saving json data as strings ready to insert into tableviews...
 extension JSON {
     public func myDegrees(dbl: AnyObject) -> String {
         let temp = dbl as! Degrees

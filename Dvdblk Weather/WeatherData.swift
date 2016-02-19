@@ -51,6 +51,13 @@ extension UnixTime {
     }
 }
 
+extension Degrees {
+    var toCompassPoint: String {
+        let directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
+        return directions[Int(round((self%360)/45))]
+    }
+}
+
 struct MyColor {
     var hue: CGFloat
     var saturation: CGFloat
@@ -85,11 +92,22 @@ struct MyColor {
     
 }
 
-
-extension Degrees {
-    var toCompassPoint: String {
-        let directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
-        return directions[Int(round((self%360)/45))]
+enum DayCycle {
+    case Day, Night
+    init() {
+        self = .Day
+    }
+    mutating func set(wthr: WeatherData) {
+        let now = Int(NSDate().timeIntervalSince1970)
+        let sunr = Int((wthr.today.cell(forAttribute: "sunrise")?.dblValue)!)
+        let suns = Int((wthr.today.cell(forAttribute: "sunset")?.dblValue)!)
+        if (now >= sunr) && (now < suns) {
+        // for testing, changes night and day every refresh...
+        //if self == .Night {
+            self = .Day
+        } else {
+            self = .Night
+        }
     }
 }
 
@@ -176,37 +194,19 @@ class OneDayWeatherExtended: OneDayWeather {
     }
 }
 
-// singleton
 class WeatherData {
-    static let sharedInstance = WeatherData()
     var days: [OneDayWeather?] = []
     var today: OneDayWeatherExtended {
         return days[0] as! OneDayWeatherExtended
     }
-    enum DayCycle {
-        case Day, Night
-        init() {
-            self = .Day
-        }
-        mutating func set() {
-            let now = Int(NSDate().timeIntervalSince1970)
-            let sunr = Int((WeatherData.sharedInstance.today.cell(forAttribute: "sunrise")?.dblValue)!)
-            let suns = Int((WeatherData.sharedInstance.today.cell(forAttribute: "sunset")?.dblValue)!)
-            if (now >= sunr) && (now < suns) {
-                self = .Day
-            } else {
-            self = .Night
-            }
-        }
-    }
-    
     
     var forecastDayCount: Int {
+        // returns the number of correctly parsed forecast days.. (for forecast5cells)
         let tempArr = days.filter { $0?.temperature != 0 }
         return tempArr.count - 1
     }
     
-    private init() {
+    init() {
         days.append(OneDayWeatherExtended())
         for _ in 0..<5 {
             days.append(OneDayWeather())

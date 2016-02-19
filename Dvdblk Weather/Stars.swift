@@ -8,6 +8,8 @@
 
 import UIKit
 
+// generates random stars-like background on every day / night cycle change
+
 class Stars: UIView {
 
     private var cloudiness: Double!
@@ -22,10 +24,11 @@ class Stars: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    /*
     convenience init(frame: CGRect, cloudiness: Double) {
         self.init(frame: frame)
         self.cloudiness = cloudiness
-    }
+    }*/
     
     override func drawRect(rect: CGRect) {
         
@@ -37,12 +40,14 @@ class Stars: UIView {
         let tempW = Int(self.frame.width)
         let tempH = Int(self.frame.height/3)
     
+        // grab all pixels W * H+random
         for x in 1..<tempW {
             for y in 15..<tempH+rand(25) {
                 coordArray.append((CGFloat(x), CGFloat(y), false))
             }
-        }        
+        }
         
+        // select +-150 random ones and draw small circles
         for _ in 0..<150+rand(10) {
             var element = coordArray[rand(coordArray.count)-1]
             if element.used == true {
@@ -51,6 +56,7 @@ class Stars: UIView {
             element.used = true
             let point = CGPoint(x: element.x, y: element.y)
             let radius: CGFloat = CGFloat(rand(6)) * 0.2 + 0.4
+            // color alpha based on height
             let alpha: CGFloat = CGFloat(rand(25)) / 100.0 + 0.70 - (point.y/CGFloat(tempH))/1.5
             let circle = UIBezierPath(ovalInRect: CGRect(origin: point, size: CGSize(width: radius, height: radius)))
             UIColor(red: 255, green: 255, blue: 255, alpha: alpha).setFill()
