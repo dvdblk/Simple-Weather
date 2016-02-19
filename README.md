@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="Dvdblk Weather/Assets.xcassets/AppIcon.appiconset/Icon-Small@2x.png" alt="Icon"/>
-</p>
 # Simple-Weather
 
 Basic weather information app written purely in Swift for an organization in Brno.
