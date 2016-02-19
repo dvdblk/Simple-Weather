@@ -17,15 +17,14 @@ Basic weather information app written purely in Swift for an organization in Brn
 <p align="center">
   <img src="night.gif" alt="Night image"/>
 </p>
+<p align="center">Stars are randomly generated every night cycle change.</p>
 
-Stars are randomly generated every night cycle change.
 
 #### Day mode
 <p align="center">
   <img src="day.gif" alt="Day image"/>
 </p>
-
-Background color is affected by current cloudiness %.
+<p align="center">Background color is affected by current cloudiness %.</p>
 
 ## Content used
 
